@@ -26,4 +26,4 @@ class Vertice:
     def __repr__(self):
         return f"{self.nome}({self.x:.2f}, {self.y:.2f})"
 
-    # prova1
+    # test github
