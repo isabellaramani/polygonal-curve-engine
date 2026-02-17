@@ -12,7 +12,7 @@ class Vertice:
 
     def cambio_coordinate(self, x, y):
         """
-        Sposta il vertice a nuove coordinate (x, y) 
+        Sposta il vertice a nuove coordinate (x, y)
         e ricalcola l'angolo automaticamente.
         """
         self.x = x
@@ -21,7 +21,7 @@ class Vertice:
 
     def cambio_angolo(self, nuovo_angolo):
         """
-        Sposta il vertice sulla circonferenza unitaria (R=1) 
+        Sposta il vertice sulla circonferenza unitaria (R=1)
         in base al nuovo angolo fornito.
         """
         self.angolo = nuovo_angolo
@@ -118,11 +118,12 @@ class Poligono:
 
             # Caso cono convesso
             if det_OA_OV*det_OA_OB < 0:
-                if det_OA_OP < 0
-                return True
+                if det_OA_OP < 0:
+                    return True
 
             # Caso cono concavo
             if det_OA_OV*det_OA_OB > 0:
+                return 1
 
     def centra_poligono(self):
         """
@@ -153,7 +154,7 @@ class Poligono:
             proiezione_v.x = raggio * math.cos(proiezione_v_angolo)
             proiezione_v.y = raggio * math.sin(proiezione_v_angolo)
 
-            if verifica_regolarita_traslazione(i, proiezione_v) == True:
+            if verifica_regolarita_traslazione(i, proiezione_v) is True:
                 return v.cambio_coordinate(proiezione_v.x, proiezione_v.y)
             else:
                 # Calcolo punto medio dell'arco tra v_im1 e v_ip2
@@ -174,7 +175,7 @@ class Poligono:
                     math.cos(punto_medio_arco2_angolo)
                 punto_medio_arco2.y = raggio * \
                     math.sin(punto_medio_arco2_angolo)
-                if verifica_regolarita_traslazione(i, punto_medio_arco2) == True:
+                if verifica_regolarita_traslazione(i, punto_medio_arco2) is True:
                     return v.cambio_coordinate(punto_medio_arco2.x, punto_medio_arco2.y)
         for i in range(1, len(self.vertici)):
             trasla_vertice_su_circonferenza(i)
