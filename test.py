@@ -28,6 +28,9 @@ class Vertice:
         self.x = math.cos(nuovo_angolo)
         self.y = math.sin(nuovo_angolo)
 
+
+origine = Vertice("origine", 0, 0)
+
 # Il poligono è una lista di vertici.
 
 
@@ -65,6 +68,14 @@ class Poligono:
         rot_vi = math.copysign(valore_assoluto_rot_vi, determinante)
         return rot_vi
 
+    def calcola_numero_di_avvolgimento(self, i):
+        somma_rotazioni = 0
+        for i in range(1, len(self.vertici)):
+            rot_vi = self.calcola_angolo_di_rotazione(i)
+            somma_rotazioni = somma_rotazioni + rot_vi
+        numero_di_avvolgimento = somma_rotazioni / (2 * math.pi)
+        return numero_di_avvolgimento
+
     def verifica_svolta_a_sinistra(self, i):
         if self.calcola_angolo_di_rotazione(i) > 0:
             return True
@@ -81,11 +92,37 @@ class Poligono:
         v_im2 = self.v(i-2)
         v_ip2 = self.v(i+2)
 
-        # Cono interdetto relativo a v_i in v_im1
-        def orientazione_di_v_risp_a_v1_v2(v, v1, v2):
-            # Calcola il determinante per determinare l'orientamento
-            det = (v1.x - v.x) * (v2.y - v.y) - (v1.y - v.y) * (v2.x - v.x)
-            return det
+        def appartiene_al_cono(v, p, o, a, b):
+            """
+            Verifica se il vertice p appartiene al cono tra a e b, con origine o contenente v.
+            """
+            def det(u_x, u_y, v_x, v_y):
+                return u_x * v_y - u_y * v_x
+
+            # Vettori OA, OB e OV
+            OA_x = a.x - o.x
+            OA_y = a.y - o.y
+            OB_x = b.x - o.x
+            OB_y = b.y - o.y
+            OV_x = v.x - o.x
+            OV_y = v.y - o.y
+            OP_x = p.x - o.x
+            OP_y = p.y - o.y
+
+            # Calcola i determinanti per verificare la posizione di OV rispetto a OA e OB
+            det_OA_OB = det(OA_x, OA_y, OB_x, OB_y)
+            det_OA_OV = det(OA_x, OA_y, OV_x, OV_y)
+            det_OB_OV = det(OB_x, OB_y, OV_x, OV_y)
+            det_OA_OP = det(OA_x, OA_y, OP_x, OP_y)
+            det_OB_OP = det(OB_x, OB_y, OP_x, OP_y)
+
+            # Caso cono convesso
+            if det_OA_OV*det_OA_OB < 0:
+                if det_OA_OP < 0
+                return True
+
+            # Caso cono concavo
+            if det_OA_OV*det_OA_OB > 0:
 
     def centra_poligono(self):
         """
@@ -103,7 +140,7 @@ class Poligono:
         for v in self.vertici:
             v.cambio_coordinate(v.x - centro_x, v.y - centro_y)
 
-    def trasla_vertici_su_circonferenza(self):
+    def trasla_vertici_su_circonferenza_unitaria(self):
         raggio = max(math.hypot(v.x, v.y) for v in self.vertici)
         if raggio == 0:
             return  # Gestione caso poligono con tutti i vertici all'origine
@@ -139,8 +176,32 @@ class Poligono:
                     math.sin(punto_medio_arco2_angolo)
                 if verifica_regolarita_traslazione(i, punto_medio_arco2) == True:
                     return v.cambio_coordinate(punto_medio_arco2.x, punto_medio_arco2.y)
-        for i in range(1, len(self.vertici)+1):
+        for i in range(1, len(self.vertici)):
             trasla_vertice_su_circonferenza(i)
+
+        # Normalizza le coordinate dei vertici sulla circonferenza unitaria
+        for i in range(1, len(self.vertici)):
+            x = self.v(i).x
+            y = self.v(i).y
+            norma = math.hypot(x, y)
+            self.v(i).cambio_coordinate(x/norma, y/norma)
+
+    # Funzionale solo se i vertici apartengono ad una circonferenza
+    def verifica_ordine_ciclico(self, lista_vertici):
+        n = len(lista_vertici)
+        if n <= 2:
+            return True
+        # Verifica se la lista di vertici è ordinata in senso orario
+        for i in range(1, n):
+            v_i = lista_vertici[i-1]
+            v_ip1 = lista_vertici[i]
+            determinante = (v_i.x * v_ip1.y - v_i.y * v_ip1.x)
+            if determinante > 0:
+                return False
+        else:
+            return True
+
+    # Funzione per traslare i vertici del poligono su circonferenza unitaria
 
 
 # Poligono di prova
