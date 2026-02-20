@@ -29,7 +29,7 @@ class Vertex:
         self.y = math.sin(new_angle)
 
 
-def get_determinant(V1: "Vertex", V2: "Vertex", V3: "Vertex", V4: "Vertex") -> float:
+def get_determinant(V1: Vertex, V2: Vertex, V3: Vertex, V4: Vertex) -> float:
     """Calcola il determinante dei vettori V1-V2 e V3-V4."""
     return (V1.x - V2.x) * (V3.y - V4.y) - (V1.y - V2.y) * (V3.x - V4.x)
 
