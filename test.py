@@ -34,6 +34,13 @@ def test_get_determinant():
     assert is_near(det, expected)
 
 
+def test_is_empty():
+    P_1 = Polygon()
+    assert P_1.is_empty()
+    P_2 = Polygon([Vertex("V", 1, 1)])
+    assert not P_2.is_empty()
+
+
 def test_add_vertex():
     P = Polygon()
     v = Vertex("V", 1, 2)
@@ -45,12 +52,28 @@ def test_add_vertex():
 
 def test_get_v_i():
     P = Polygon(
-        [Vertex("V1", 5.6, 2.9), Vertex("V2", 3.2, 4.1), Vertex("V3", 7.6, 1.8)]
+        [Vertex("V1", 5.6, 2.9), Vertex(
+            "V2", 3.2, 4.1), Vertex("V3", 7.6, 1.8)]
     )
     assert P.get_v_i(2).name == "V2"
     # DUBBIO: in questo caso deve restituire esattamente 3 e 4?
     assert is_near(P.get_v_i(2).x, 3.2)
     assert is_near(P.get_v_i(2).y, 4.1)
+
+
+def test_eliminate_vertex():
+    P_1 = Polygon(
+        [Vertex("V1", 1, 0), Vertex(
+            "V2", 0, 0), Vertex("V3", -4, 0)]
+    )
+    P_1.eliminate_vertex(2)
+    assert len(P_1.vertices) == 2
+    P_2 = Polygon(
+        [Vertex("V1", 0, 0), Vertex(
+            "V2", 1, 2), Vertex("V3", 2, 4)]
+    )
+    P_2.eliminate_vertex(2)
+    assert len(P_2.vertices) == 2
 
 
 def test_get_rotation_angle():
@@ -109,7 +132,8 @@ def test_is_left_turn():
 
 def test_center_polygon():
     P = Polygon(
-        [Vertex("V1", 1.5, 2.4), Vertex("V2", 3.6, 4.1), Vertex("V3", 2.7, 9.8)]
+        [Vertex("V1", 1.5, 2.4), Vertex(
+            "V2", 3.6, 4.1), Vertex("V3", 2.7, 9.8)]
     )
     coords = [(1.5, 2.4), (3.6, 4.1), (2.7, 9.8)]
     # Calcolo centro
@@ -124,6 +148,39 @@ def test_center_polygon():
         assert is_near(P.get_v_i(i).y, expected_y)
 
 
+def test_is_circle():
+    P_1 = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", 0, 1),
+            Vertex("V3", -1, 0),
+            Vertex("V4", 0, -1),
+        ]
+    )
+    assert P_1.is_circle()
+
+    P_2 = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", 0, 1),
+            Vertex("V3", -1, 0),
+            Vertex("V4", 0, 0.8),
+            Vertex("V5", 0.5, 0.5),
+        ]
+    )
+    assert not P_2.is_circle()
+
+    P_3 = Polygon(
+        [
+            Vertex("V1", 0.5, 0),
+            Vertex("V2", -0.9, 1.5),
+            Vertex("V3", -1.9, 3),
+            Vertex("V4", -10.7, 37.5),
+        ]
+    )
+    assert not P_3.is_circle()
+
+
 def test_is_clockwise():
     P_1 = Polygon(
         [
@@ -135,10 +192,154 @@ def test_is_clockwise():
     )
     assert P_1.is_clockwise(P_1.vertices)
     P_2 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
     )
     assert P_2.is_clockwise(P_2.vertices)
-    P_2 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+    P_3 = Polygon(
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
     )
-    assert not P_2.is_clockwise(P_2.vertices)
+    assert not P_3.is_clockwise(P_3.vertices)
+
+
+def test_get_unitary_radius():
+    P = Polygon(
+        [
+            Vertex("V1", 2, 0),
+            Vertex("V2", 0, 2),
+            Vertex("V3", -2, 0),
+            Vertex("V4", 0, -2),
+        ]
+    )
+    P.get_unitary_radius()
+    for v in P.vertices:
+        assert is_near(math.sqrt(v.x ** 2 + v.y ** 2), 1)
+
+
+def test_sort_vertices_clockwise():
+    P_1 = Polygon(
+        [
+            Vertex("V1", 0, 1),
+            Vertex("V2", 1, 0),
+            Vertex("V3", 0, -1),
+            Vertex("V4", -1, 0),
+        ]
+    )
+    list_1 = [Vertex("V4", -1, 0), Vertex("V2", 1, 0),
+              Vertex("V3", 0, -1), Vertex("V1", 0, 1)]
+    sorted_vertices_1 = P_1.sort_vertices_clockwise(list_1)
+    expected_order_1 = ["V4", "V1", "V2", "V3"]
+    for v, expected_name in zip(sorted_vertices_1, expected_order_1):
+        assert v.name == expected_name
+
+    P_2 = Polygon(
+        [
+            Vertex("V1", 4, 0),
+            Vertex("V2", -4, 0),
+            Vertex("V3", 0, 4),
+            Vertex("V4", 0, -4),
+            Vertex("V5", 2 * math.sqrt(2), 2 * math.sqrt(2)),
+            Vertex("V6", -2 * math.sqrt(2), 2 * math.sqrt(2))
+        ]
+    )
+    list_2 = [P_2.get_v_i(4), P_2.get_v_i(5), P_2.get_v_i(1), P_2.get_v_i(2)]
+    sorted_vertices_2 = P_2.sort_vertices_clockwise(list_2)
+    expected_order_2 = ["V4", "V2", "V5", "V1"]
+    for v, expected_name in zip(sorted_vertices_2, expected_order_2):
+        assert v.name == expected_name
+
+
+def test_get_equispaced_vertices():
+    P = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", 1/2, math.sqrt(3)/2),
+            Vertex("V3", -1, 0),
+            Vertex("V4", math.sqrt(2)/2, math.sqrt(2)/2),
+        ]
+    )
+    P.get_equispaced_vertices()
+    expected_angles = [0, math.pi, 3 * math.pi / 2, math.pi / 2]
+    for v, expected_angle in zip(P.vertices, expected_angles):
+        assert is_near(v.angle, expected_angle)
+
+
+def test_rotate_vertices():
+    P = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", 0, 1),
+            Vertex("V3", -1, 0),
+        ]
+    )
+    P.rotate_vertex(3, +math.pi / 2)
+    expected_angle = 3 * math.pi / 2
+    assert is_near(P.get_v_i(3).angle, expected_angle)
+
+
+def test_is_translation_regular():
+    P = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", -1, 0),
+            Vertex("V3", 0, 1),
+            Vertex("V4", 0, -1),
+            Vertex("V5", math.sqrt(2) / 2, math.sqrt(2) / 2),
+        ]
+    )
+    # Si vede facilmente tramite disegno dove
+    # posso traslare 4
+    A = Vertex("A", -math.sqrt(2) / 2, - math.sqrt(2) / 2)
+    assert P.is_translation_regular(4, A)
+    B = Vertex("B", -math.sqrt(2) / 2, + math.sqrt(2) / 2)
+    assert not P.is_translation_regular(4, B)
+
+
+def test_move_to_midpoint():
+    P = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", -1, 0),
+            Vertex("V3", 0, 1),
+            Vertex("V4", 0, -1),
+            Vertex("V5", math.sqrt(2) / 2, math.sqrt(2) / 2),
+        ]
+    )
+    P.move_to_midpoint(4)
+    assert is_near(P.get_v_i(4).x, math.sqrt(2) / 4)
+    assert is_near(P.get_v_i(4).y, (2 + math.sqrt(2)) / 4)
+
+
+def test_move_and_eliminate():
+    P = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", -1, 0),
+            Vertex("V3", 0, 1),
+            Vertex("V4", 0, -1),
+            Vertex("V5", math.sqrt(2) / 2, math.sqrt(2) / 2),
+        ]
+    )
+    P.move_and_eliminate(4)
+    assert len(P.vertices) == 4
+
+
+def test_weak_translation_clockwise():
+    P = Polygon(
+        [
+            Vertex("V1", -2 * math.sqrt(2), 2 * math.sqrt(2)),
+            Vertex("V2", 0, -4),
+            Vertex("V3", 0, 4),
+            Vertex("V4", -2 * math.sqrt(2), -2 * math.sqrt(2)),
+            Vertex("V5", 4, 0),
+            Vertex("V6", -4, 0),
+            Vertex("V7", 2 * math.sqrt(2), 2 * math.sqrt(2)),
+            Vertex("V8", 2 * math.sqrt(2), -2 * math.sqrt(2))
+        ]
+    )
+    initial_order = P.sort_vertices_clockwise(P.vertices)
+    P.weak_translation_clockwise(1, math.pi / 6)
+    final_order = P.sort_vertices_clockwise(P.vertices)
+    assert final_order == initial_order
+    assert is_near(P.get_v_i(1).angle, math.pi / 6)
