@@ -1,4 +1,3 @@
-
 import math
 
 TOLERANCE = 0.0005
@@ -75,9 +74,9 @@ class Polygon:
     def eliminate_vertex(self, i: int) -> None:
         """Elimina il vertice i-esimo se appartiene
         al segmento [v_im1,vip1]."""
-        v_im1 = self.get_v_i(i-1)
+        v_im1 = self.get_v_i(i - 1)
         v_i = self.get_v_i(i)
-        v_ip1 = self.get_v_i(i+1)
+        v_ip1 = self.get_v_i(i + 1)
         # controllo se i vettori sono
         # allineati con il determinante
         det = get_determinant(v_im1, v_i, v_ip1, v_i)
@@ -104,8 +103,8 @@ class Polygon:
 
         # Calcolo prodotto scalare.
         dot_product = vec1_x * vec2_x + vec1_y * vec2_y
-        norm_1 = math.sqrt(vec1_x ** 2 + vec1_y ** 2)
-        norm_2 = math.sqrt(vec2_x ** 2 + vec2_y ** 2)
+        norm_1 = math.sqrt(vec1_x**2 + vec1_y**2)
+        norm_2 = math.sqrt(vec2_x**2 + vec2_y**2)
 
         abs_value_rot_vi = math.acos(dot_product / (norm_1 * norm_2))
         det = vec2_x * vec1_y - vec2_y * vec1_x
@@ -155,33 +154,31 @@ class Polygon:
         # Calcola circocentro e raggio usando i primi 3 vertici
         V1, V2, V3 = self.vertices[0], self.vertices[1], self.vertices[2]
 
-        def calculate_circumcenter(
-            V1: Vertex, V2: Vertex, V3: Vertex
-        ) -> Vertex:
-            """Calcola il circocentro dei tre vertici V1, V2, V3. """
+        def calculate_circumcenter(V1: Vertex, V2: Vertex, V3: Vertex) -> Vertex:
+            """Calcola il circocentro dei tre vertici V1, V2, V3."""
             # Calcola i punti medi dei segmenti V1-V2 e V2-V3
             M_12 = Vertex("Midpoint12", (V1.x + V2.x) / 2, (V1.y + V2.y) / 2)
             M_23 = Vertex("Midpoint23", (V2.x + V3.x) / 2, (V2.y + V3.y) / 2)
             # Calcola coefficiente delle rette perpendicolari a V1-V2 e V2-V3
-            m_12 = (V1.y - V2.y)/(V1.x - V2.x)
-            m_23 = (V2.y - V3.y)/(V2.x - V3.x)
+            m_12 = (V1.y - V2.y) / (V1.x - V2.x)
+            m_23 = (V2.y - V3.y) / (V2.x - V3.x)
             if m_12 != 0:
-                m_perp_12 = -1/m_12
+                m_perp_12 = -1 / m_12
             else:
-                m_perp_12 = float('inf')  # Retta verticale
+                m_perp_12 = float("inf")  # Retta verticale
             if m_23 != 0:
-                m_perp_23 = -1/m_23
+                m_perp_23 = -1 / m_23
             else:
-                m_perp_23 = float('inf')  # Retta verticale
+                m_perp_23 = float("inf")  # Retta verticale
 
             # Intersezione delle due rette perpendicolari
             # Devo risolvere il sistema di equazioni:
             # y - M_12.y = m_perp_12 * (x - M_12.x)
             # y - M_23.y = m_perp_23 * (x - M_23.x)
-            if m_perp_12 == float('inf'):
+            if m_perp_12 == float("inf"):
                 x = M_12.x
                 y = m_perp_23 * (x - M_23.x) + M_23.y
-            elif m_perp_23 == float('inf'):
+            elif m_perp_23 == float("inf"):
                 x = M_23.x
                 y = m_perp_12 * (x - M_12.x) + M_12.y
             else:
@@ -208,19 +205,18 @@ class Polygon:
         """Porta tutti i vertici di un poligono già su una
         circonferenza su circonferenza unitaria."""
         if self.is_circle() is False:
-            raise ValueError(
-                "I vertici non appartengono ad una circonferenza.")
+            raise ValueError("I vertici non appartengono ad una circonferenza.")
         for v in self.vertices:
-            v.change_coordinates(v.x / math.sqrt(v.x ** 2 + v.y ** 2),
-                                 v.y / math.sqrt(v.x ** 2 + v.y ** 2))
+            v.change_coordinates(
+                v.x / math.sqrt(v.x**2 + v.y**2), v.y / math.sqrt(v.x**2 + v.y**2)
+            )
 
     def is_clockwise(self, list_vertices: list[Vertex]) -> bool:
         """Verifica se i vertici sulla circonferenza unitaria
         sono ordinati in senso orario
         (accetta anche vertici non distinti)."""
         if self.is_circle() is False:
-            raise ValueError(
-                "I vertici non appartengono ad una circonferenza.")
+            raise ValueError("I vertici non appartengono ad una circonferenza.")
 
         n = len(list_vertices)
         if n <= 2:
@@ -233,8 +229,7 @@ class Polygon:
             current_angle = list_vertices[j].angle
             # Calcolo la differenza angolare rispetto all'angolo di riferimento
             # Sarà crescente in senso antiorario
-            current_angle_normalised = (
-                current_angle - base_angle) % (2 * math.pi)
+            current_angle_normalised = (current_angle - base_angle) % (2 * math.pi)
             next_angle = list_vertices[(j + 1) % n].angle
             next_angle_normalised = (next_angle - base_angle) % (2 * math.pi)
 
@@ -248,14 +243,11 @@ class Polygon:
 
         return True
 
-    def sort_vertices_clockwise(
-        self, list_vertices: list[Vertex]
-    ) -> list[Vertex]:
+    def sort_vertices_clockwise(self, list_vertices: list[Vertex]) -> list[Vertex]:
         """Restituisce i vertici ordinati in senso orario
         a partire dal primo vertice della lista."""
         if self.is_circle() is False:
-            raise ValueError(
-                "I vertici non appartengono ad una circonferenza.")
+            raise ValueError("I vertici non appartengono ad una circonferenza.")
         if self.is_clockwise(list_vertices):
             return list_vertices
         else:
@@ -273,8 +265,7 @@ class Polygon:
     def get_equispaced_vertices(self) -> None:
         """Equidistanza i vertici del poligono sulla circonferenza"""
         if self.is_circle() is False:
-            raise ValueError(
-                "I vertici non appartengono ad una circonferenza.")
+            raise ValueError("I vertici non appartengono ad una circonferenza.")
         n = len(self.vertices)
         sorted_vertices = self.sort_vertices_clockwise(self.vertices)
         base_angle = sorted_vertices[0].angle
@@ -295,14 +286,13 @@ class Polygon:
     def is_translation_regular(self, i: int, U: Vertex) -> bool:
         """Verifica se la traslazione del vertice
         i-esimo in un punto è regolare."""
-        V_im2 = self.get_v_i(i-2)
-        V_im1 = self.get_v_i(i-1)
+        V_im2 = self.get_v_i(i - 2)
+        V_im1 = self.get_v_i(i - 1)
         V_i = self.get_v_i(i)
-        V_ip1 = self.get_v_i(i+1)
-        V_ip2 = self.get_v_i(i+2)
+        V_ip1 = self.get_v_i(i + 1)
+        V_ip2 = self.get_v_i(i + 2)
 
-        def is_in_cone(o: Vertex, A: Vertex, B: Vertex,
-                       Q: Vertex, P: Vertex) -> bool:
+        def is_in_cone(o: Vertex, A: Vertex, B: Vertex, Q: Vertex, P: Vertex) -> bool:
             """Verifica se il punto P sta nel cono
             definito da A,O,B contenente Q."""
             # Calcola gli angoli rispetto all'origine O (da -pi a pi)
@@ -312,20 +302,21 @@ class Polygon:
             angle_P = math.atan2(P.y - o.y, P.x - o.x)
 
             # Tiene OA come riferimento
-            diff_B = (angle_B-angle_A) % (2 * math.pi)
-            diff_Q = (angle_Q-angle_A) % (2 * math.pi)
-            diff_P = (angle_P-angle_A) % (2 * math.pi)
+            diff_B = (angle_B - angle_A) % (2 * math.pi)
+            diff_Q = (angle_Q - angle_A) % (2 * math.pi)
+            diff_P = (angle_P - angle_A) % (2 * math.pi)
 
             if diff_Q < diff_B < diff_P or diff_P < diff_B < diff_Q:
                 return False
             else:
                 return True
+
         # Cono relativo a v_i in v_im1
 
         # Punto opposto a v_ip1 sulla semiretta v_im1-vip1
-        test_point_v_im1 = Vertex("Test point 1",
-                                  V_im1.x - (V_ip1.x - V_im1.x),
-                                  V_im1.y - (V_ip1.y - V_im1.y))
+        test_point_v_im1 = Vertex(
+            "Test point 1", V_im1.x - (V_ip1.x - V_im1.x), V_im1.y - (V_ip1.y - V_im1.y)
+        )
         # P deve appartenere al cono contenente v_i
         # formato da v_im1-test_point_v_im1
         if is_in_cone(V_im1, test_point_v_im1, V_im2, V_i, U) is False:
@@ -333,9 +324,9 @@ class Polygon:
 
         # Cono relativo a v_i in v_ip1
         # Punto opposto a v_im1 sulla semiretta v_ip1-vim1
-        test_point_v_ip1 = Vertex("Test point 2",
-                                  V_ip1.x - (V_im1.x - V_ip1.x),
-                                  V_ip1.x - (V_im1.x - V_ip1.x))
+        test_point_v_ip1 = Vertex(
+            "Test point 2", V_ip1.x - (V_im1.x - V_ip1.x), V_ip1.x - (V_im1.x - V_ip1.x)
+        )
         # P deve appartenere al cono contenente v_i
         # formato da v_im1-test_point_v_im1
         if is_in_cone(V_ip1, test_point_v_ip1, V_ip2, V_i, U) is False:
@@ -345,13 +336,14 @@ class Polygon:
     def move_to_midpoint(self, i: int) -> None:
         """Trasla il vertice i-esimo nel punto medio del segmento con
         estremi il vertice precedente e quello successivo."""
-        V_im1 = self.get_v_i(i-1)
-        V_ip1 = self.get_v_i(i+1)
+        V_im1 = self.get_v_i(i - 1)
+        V_ip1 = self.get_v_i(i + 1)
         # Punto medio
         M = Vertex("M", (V_im1.x + V_ip1.x) / 2, (V_im1.y + V_ip1.y) / 2)
         if self.is_translation_regular(i, M) is True:
             self.get_v_i(i).change_coordinates(
-                (V_im1.x + V_ip1.x) / 2, (V_im1.y + V_ip1.y) / 2)
+                (V_im1.x + V_ip1.x) / 2, (V_im1.y + V_ip1.y) / 2
+            )
         else:
             raise ValueError("Non si può fare con trasformazioni regolari.")
 
@@ -360,13 +352,12 @@ class Polygon:
         self.eliminate_vertex(i)
 
     def weak_translation_clockwise(self, i: int, target_angle: float) -> None:
-        """ Trasla il vertice lungo la circonferenza di angolo
+        """Trasla il vertice lungo la circonferenza di angolo
         target_angle preservando ordine e regolarità traslando
         tutti i vertici collegati (vedi lemma 2.12)."""
 
         if self.is_circle() is False:
-            raise ValueError(
-                "I vertici non appartengono ad una circonferenza.")
+            raise ValueError("I vertici non appartengono ad una circonferenza.")
 
         target_x = math.cos(target_angle)
         target_y = math.sin(target_angle)
@@ -379,8 +370,8 @@ class Polygon:
             return self.is_clockwise([self.get_v_i(i), v, target])
 
         def get_active_vertices() -> list[Vertex]:
-            """Ritorna la lista dei vertici collegati che vanno traslati.
-            """
+            """Ritorna la lista dei vertici collegati che vanno traslati."""
+
             def is_edge_active(j: int, k: int) -> bool:
                 """Verifica se il lato con estremi v_j e v_k
                 è attivo (ovvero almeno dei suoi estremi è in A)."""
@@ -397,8 +388,10 @@ class Polygon:
                 next_idx = curr_idx + 1
                 # Se il lato (corrente, successivo) è attivo e
                 # non l'abbiamo già visitato
-                if is_edge_active(curr_idx, next_idx) and (
-                        next_idx % n) not in active_indices:
+                if (
+                    is_edge_active(curr_idx, next_idx)
+                    and (next_idx % n) not in active_indices
+                ):
                     # Aggiungo vertice e passo al successivo
                     active_indices.add(next_idx % n)
                     curr_idx = next_idx
@@ -411,16 +404,17 @@ class Polygon:
                 prev_idx = curr_idx - 1
                 # Se il lato (precedente, corrente) è attivo
                 # e non l'abbiamo già visitato
-                if is_edge_active(prev_idx, curr_idx) and (
-                        prev_idx % n) not in active_indices:
+                if (
+                    is_edge_active(prev_idx, curr_idx)
+                    and (prev_idx % n) not in active_indices
+                ):
                     active_indices.add(prev_idx % n)
                     curr_idx = prev_idx
                 else:
                     break
 
             # Costruiamo la lista finale prendendo i vertici
-            list_active_vertices = [self.get_v_i(
-                idx) for idx in active_indices]
+            list_active_vertices = [self.get_v_i(idx) for idx in active_indices]
             return list_active_vertices
 
         # Lista dei vertici attivi
@@ -430,14 +424,14 @@ class Polygon:
         # Lista dei vertici attivi di A da traslare
         # in ordine (ovvero ordinati in senso antiorario)
         active_vertices_in_A = list(
-            reversed(self.sort_vertices_clockwise(active_vertices_in_A)))
+            reversed(self.sort_vertices_clockwise(active_vertices_in_A))
+        )
 
         # Calcolo il vertice successivo al vertice target
 
         # Vertici del poligono e target ordinati
         # in senso orario a partire da v1
-        sorted_vertices = self.sort_vertices_clockwise(
-            self.vertices + [target])
+        sorted_vertices = self.sort_vertices_clockwise(self.vertices + [target])
 
         # Chiediamo in che posizione si trova il target
         indice_target = sorted_vertices.index(target)
