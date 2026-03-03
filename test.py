@@ -201,6 +201,58 @@ def test_is_clockwise():
          Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
     )
     assert not P_3.is_clockwise(P_3.vertices)
+    P_4 = Polygon(
+        [
+            Vertex("V1", -1, 0),
+            Vertex("V2", math.sqrt(3) / 2, 0.5),
+            Vertex("V3", 1, 0),
+            Vertex("V4", 0, -1),
+            Vertex("V5", 0, -1),
+        ]
+    )
+    assert P_4.is_clockwise(P_4.vertices)
+    P_5 = Polygon(
+        [Vertex("V1", -1, 0),
+         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+    )
+    assert not P_5.is_clockwise(P_5.vertices)
+
+
+def test_is_counterclockwise():
+    P_1 = Polygon(
+        [
+            Vertex("V1", -1, 0),
+            Vertex("V2", math.sqrt(3) / 2, 0.5),
+            Vertex("V3", 1, 0),
+            Vertex("V4", 0, -1),
+        ]
+    )
+    assert not P_1.is_counterclockwise(P_1.vertices)
+    P_2 = Polygon(
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
+    )
+    assert not P_2.is_counterclockwise(P_2.vertices)
+    P_3 = Polygon(
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+    )
+    assert P_3.is_counterclockwise(P_3.vertices)
+    P_4 = Polygon(
+        [
+            Vertex("V1", -1, 0),
+            Vertex("V2", math.sqrt(3) / 2, 0.5),
+            Vertex("V3", 1, 0),
+            Vertex("V4", 0, -1),
+            Vertex("V5", 0, -1),
+        ]
+    )
+    assert not P_4.is_counterclockwise(P_4.vertices)
+    P_5 = Polygon(
+        [Vertex("V1", -1, 0),
+         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+    )
+    assert P_5.is_counterclockwise(P_5.vertices)
 
 
 def test_get_unitary_radius():
@@ -247,6 +299,53 @@ def test_sort_vertices_clockwise():
     sorted_vertices_2 = P_2.sort_vertices_clockwise(list_2)
     expected_order_2 = ["V4", "V2", "V5", "V1"]
     for v, expected_name in zip(sorted_vertices_2, expected_order_2):
+        assert v.name == expected_name
+
+    list_3 = [P_2.get_v_i(4), P_2.get_v_i(6), P_2.get_v_i(
+        2), P_2.get_v_i(3), P_2.get_v_i(1)]
+    sorted_vertices_3 = P_2.sort_vertices_clockwise(list_3)
+    expected_order_3 = ["V4", "V2", "V6", "V3", "V1"]
+    for v, expected_name in zip(sorted_vertices_3, expected_order_3):
+        assert v.name == expected_name
+
+
+def test_sort_vertices_counterclockwise():
+    P_1 = Polygon(
+        [
+            Vertex("V1", 0, 1),
+            Vertex("V2", 1, 0),
+            Vertex("V3", 0, -1),
+            Vertex("V4", -1, 0),
+        ]
+    )
+    list_1 = [Vertex("V4", -1, 0), Vertex("V2", 1, 0),
+              Vertex("V3", 0, -1), Vertex("V1", 0, 1)]
+    sorted_vertices_1 = P_1.sort_vertices_counterclockwise(list_1)
+    expected_order_1 = ["V4", "V3", "V2", "V1"]
+    for v, expected_name in zip(sorted_vertices_1, expected_order_1):
+        assert v.name == expected_name
+
+    P_2 = Polygon(
+        [
+            Vertex("V1", 4, 0),
+            Vertex("V2", -4, 0),
+            Vertex("V3", 0, 4),
+            Vertex("V4", 0, -4),
+            Vertex("V5", 2 * math.sqrt(2), 2 * math.sqrt(2)),
+            Vertex("V6", -2 * math.sqrt(2), 2 * math.sqrt(2))
+        ]
+    )
+    list_2 = [P_2.get_v_i(4), P_2.get_v_i(5), P_2.get_v_i(1), P_2.get_v_i(2)]
+    sorted_vertices_2 = P_2.sort_vertices_counterclockwise(list_2)
+    expected_order_2 = ["V4", "V1", "V5", "V2"]
+    for v, expected_name in zip(sorted_vertices_2, expected_order_2):
+        assert v.name == expected_name
+
+    list_3 = [P_2.get_v_i(4), P_2.get_v_i(6), P_2.get_v_i(
+        2), P_2.get_v_i(3), P_2.get_v_i(1)]
+    sorted_vertices_3 = P_2.sort_vertices_counterclockwise(list_3)
+    expected_order_3 = ["V4", "V1", "V3", "V6", "V2"]
+    for v, expected_name in zip(sorted_vertices_3, expected_order_3):
         assert v.name == expected_name
 
 
@@ -326,20 +425,66 @@ def test_move_and_eliminate():
 
 
 def test_weak_translation_clockwise():
-    P = Polygon(
+    P_1 = Polygon(
         [
-            Vertex("V1", -2 * math.sqrt(2), 2 * math.sqrt(2)),
-            Vertex("V2", 0, -4),
-            Vertex("V3", 0, 4),
-            Vertex("V4", -2 * math.sqrt(2), -2 * math.sqrt(2)),
-            Vertex("V5", 4, 0),
-            Vertex("V6", -4, 0),
-            Vertex("V7", 2 * math.sqrt(2), 2 * math.sqrt(2)),
-            Vertex("V8", 2 * math.sqrt(2), -2 * math.sqrt(2))
+            Vertex("V1", - math.sqrt(2) / 2, math.sqrt(2) / 2),
+            Vertex("V2", 0, -1),
+            Vertex("V3", 0, 1),
+            Vertex("V4", -math.sqrt(2) / 2, - math.sqrt(2) / 2),
+            Vertex("V5", 1, 0),
+            Vertex("V6", -1, 0),
+            Vertex("V7", math.sqrt(2) / 2, math.sqrt(2) / 2),
+            Vertex("V8", math.sqrt(2) / 2, - math.sqrt(2) / 2)
         ]
     )
-    initial_order = P.sort_vertices_clockwise(P.vertices)
-    P.weak_translation_clockwise(1, math.pi / 6)
-    final_order = P.sort_vertices_clockwise(P.vertices)
-    assert final_order == initial_order
-    assert is_near(P.get_v_i(1).angle, math.pi / 6)
+    P_1.weak_translation_clockwise(1, math.pi / 6)
+    # Si vede dal disegno che V1, V3 e V7 sono quelli che vanno traslati
+    assert is_near(P_1.get_v_i(1).angle, math.pi / 6)
+    assert is_near(P_1.get_v_i(3).angle, math.pi / 9)
+    assert is_near(P_1.get_v_i(7).angle, math.pi / 18)
+
+    P_2 = Polygon(
+        [
+            Vertex("V1", -math.sqrt(2) / 2, math.sqrt(2) / 2),
+            Vertex("V2", 0, -1),
+            Vertex("V3", 0, 1),
+            Vertex("V4", -math.sqrt(2) / 2, - math.sqrt(2) / 2),
+        ]
+    )
+    P_2.weak_translation_clockwise(3, math.pi / 3)
+    # Si vede dal disegno che viene traslato solo V3
+    assert is_near(P_2.get_v_i(3).angle, math.pi / 3)
+
+    P_3 = Polygon(
+        [
+            Vertex("V1", -math.sqrt(2) / 2, math.sqrt(2) / 2),
+            Vertex("V2", 0, -1),
+            Vertex("V3", math.sqrt(2) / 2, math.sqrt(2) / 2),
+            Vertex("V4", -1, 0),
+            Vertex("V5", 1, 0),
+            Vertex("V6", math.sqrt(2) / 2, -math.sqrt(2) / 2),
+        ]
+    )
+    P_3.weak_translation_clockwise(6, 4 * math.pi / 3)
+    # Si vede dal disegno che V1, V3 e V7 sono quelli che vanno traslati
+    assert is_near(P_3.get_v_i(6).angle, 4 * math.pi / 3)
+    assert is_near(P_3.get_v_i(2).angle, 7 * math.pi / 6)
+
+
+def test_weak_translation_counterclockwise():
+    P_1 = Polygon(
+        [
+            Vertex("V1", - math.sqrt(2) / 2, math.sqrt(2) / 2),
+            Vertex("V2", 0, -1),
+            Vertex("V3", 0, 1),
+            Vertex("V4", -math.sqrt(2) / 2, - math.sqrt(2) / 2),
+            Vertex("V5", 1, 0),
+            Vertex("V6", -1, 0),
+            Vertex("V7", math.sqrt(2) / 2, math.sqrt(2) / 2),
+            Vertex("V8", math.sqrt(2) / 2, - math.sqrt(2) / 2)
+        ]
+    )
+    P_1.weak_translation_counterclockwise(7, 5 * math.pi / 6)
+    assert is_near(P_1.get_v_i(7).angle, 5 * math.pi / 6)
+    assert is_near(P_1.get_v_i(3).angle, 16 * math.pi / 18)
+    assert is_near(P_1.get_v_i(1).angle, 17 * math.pi / 18)
