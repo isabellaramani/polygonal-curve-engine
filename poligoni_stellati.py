@@ -64,7 +64,7 @@ class Polygon:
         """Aggiunge un vertice al poligono."""
         self.vertices.append(V)
 
-    def get_v_i(self, i: int) -> Vertex:
+    def get_v(self, i: int) -> Vertex:
         """Restituisce il vertice v_i, con i che parte da 1."""
         n = len(self.vertices)
         # Gestisce il caso poligono vuoto.
@@ -75,9 +75,9 @@ class Polygon:
     def eliminate_vertex(self, i: int) -> None:
         """Elimina il vertice i-esimo se appartiene
         al segmento [v_im1,vip1]."""
-        v_im1 = self.get_v_i(i-1)
-        v_i = self.get_v_i(i)
-        v_ip1 = self.get_v_i(i+1)
+        v_im1 = self.get_v(i-1)
+        v_i = self.get_v(i)
+        v_ip1 = self.get_v(i+1)
         # controllo se i vettori sono
         # allineati con il determinante
         det = get_determinant(v_im1, v_i, v_ip1, v_i)
@@ -92,9 +92,9 @@ class Polygon:
 
     def get_rotation_angle(self, i: int) -> float:
         """Calcola l'angolo di rotazione di v_i."""
-        V_i = self.get_v_i(i)
-        V_ip1 = self.get_v_i(i + 1)
-        V_im1 = self.get_v_i(i - 1)
+        V_i = self.get_v(i)
+        V_ip1 = self.get_v(i + 1)
+        V_im1 = self.get_v(i - 1)
 
         # Calcolo dei vettori v_im1->v_i e v_i->v_ip1.
         vec1_x = V_i.x - V_im1.x
@@ -125,6 +125,12 @@ class Polygon:
 
     def is_left_turn(self, i: int) -> bool:
         """Verifica se in v_i svolta a sinistra."""
+        if self.get_rotation_angle(i) < 0:
+            return True
+        return False
+
+    def is_right_turn(self, i: int) -> bool:
+        """Verifica se in v_i svolta a destra."""
         if self.get_rotation_angle(i) > 0:
             return True
         return False
@@ -368,17 +374,17 @@ class Polygon:
         'delta_angle'. Un delta positivo ruota in senso antiorario,
         negativo in senso orario."""
         # Calcoliamo il nuovo angolo sommandolo a quello attuale
-        new_angle = (self.get_v_i(i).angle + delta_angle) % (2 * math.pi)
-        self.get_v_i(i).change_angle(new_angle)
+        new_angle = (self.get_v(i).angle + delta_angle) % (2 * math.pi)
+        self.get_v(i).change_angle(new_angle)
 
     def is_translation_regular(self, i: int, U: Vertex) -> bool:
         """Verifica se la traslazione del vertice
         i-esimo in un punto è regolare."""
-        V_im2 = self.get_v_i(i-2)
-        V_im1 = self.get_v_i(i-1)
-        V_i = self.get_v_i(i)
-        V_ip1 = self.get_v_i(i+1)
-        V_ip2 = self.get_v_i(i+2)
+        V_im2 = self.get_v(i-2)
+        V_im1 = self.get_v(i-1)
+        V_i = self.get_v(i)
+        V_ip1 = self.get_v(i+1)
+        V_ip2 = self.get_v(i+2)
 
         def is_in_cone(o: Vertex, A: Vertex, B: Vertex,
                        Q: Vertex, P: Vertex) -> bool:
@@ -424,12 +430,12 @@ class Polygon:
     def move_to_midpoint(self, i: int) -> None:
         """Trasla il vertice i-esimo nel punto medio del segmento con
         estremi il vertice precedente e quello successivo."""
-        V_im1 = self.get_v_i(i-1)
-        V_ip1 = self.get_v_i(i+1)
+        V_im1 = self.get_v(i-1)
+        V_ip1 = self.get_v(i+1)
         # Punto medio
         M = Vertex("M", (V_im1.x + V_ip1.x) / 2, (V_im1.y + V_ip1.y) / 2)
         if self.is_translation_regular(i, M) is True:
-            self.get_v_i(i).change_coordinates(
+            self.get_v(i).change_coordinates(
                 (V_im1.x + V_ip1.x) / 2, (V_im1.y + V_ip1.y) / 2)
         else:
             raise ValueError("Non si può fare con trasformazioni regolari.")
@@ -463,7 +469,7 @@ class Polygon:
                 return True
             # Se v è in senso orario rispetto a v_i e target,
             # allora è in A
-            return self.is_clockwise([self.get_v_i(i), v, target])
+            return self.is_clockwise([self.get_v(i), v, target])
 
         def get_active_vertices() -> list[Vertex]:
             """Ritorna la lista dei vertici collegati che vanno traslati.
@@ -472,8 +478,8 @@ class Polygon:
                 """Verifica se il lato con estremi v_j e v_k
                 è attivo (ovvero almeno dei suoi estremi è in A)."""
                 if k == j+1 or k == j-1:
-                    v1 = self.get_v_i(j)
-                    v2 = self.get_v_i(k)
+                    v1 = self.get_v(j)
+                    v2 = self.get_v(k)
                     return is_in_arc_A(v1) or is_in_arc_A(v2)
                 else:
                     return False
@@ -565,7 +571,7 @@ class Polygon:
         target_y = math.sin(target_angle)
         target = Vertex("Target", target_x, target_y)
 
-        v_i = self.get_v_i(i)
+        v_i = self.get_v(i)
 
         # Chiamo A l'arco fra v_i e target
         def is_in_arc_A(v: Vertex) -> bool:
@@ -576,7 +582,7 @@ class Polygon:
                 return True
             # Se v è in senso antiorario rispetto a v_i e target,
             # allora è in A
-            return self.is_counterclockwise([self.get_v_i(i), v, target])
+            return self.is_counterclockwise([self.get_v(i), v, target])
 
         def get_active_vertices() -> list[Vertex]:
             """Ritorna la lista dei vertici collegati che vanno traslati.
@@ -585,8 +591,8 @@ class Polygon:
                 """Verifica se il lato con estremi v_j e v_k
                 è attivo (ovvero almeno dei suoi estremi è in A)."""
                 if k == j+1 or k == j-1:
-                    v1 = self.get_v_i(j)
-                    v2 = self.get_v_i(k)
+                    v1 = self.get_v(j)
+                    v2 = self.get_v(k)
                     return is_in_arc_A(v1) or is_in_arc_A(v2)
                 else:
                     return False
@@ -622,7 +628,7 @@ class Polygon:
                     break
 
             # Costruiamo la lista finale prendendo i vertici
-            list_active_vertices = [self.get_v_i(
+            list_active_vertices = [self.get_v(
                 idx) for idx in active_indices]
             return list_active_vertices
 

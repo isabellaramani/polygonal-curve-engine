@@ -125,9 +125,16 @@ def test_get_winding_number():
 
 
 def test_is_left_turn():
+    P = Polygon([Vertex("V1", 3.4, 0), Vertex(
+        "V2", 1, 0), Vertex("V3", 1, -1)])
+    expected_rotation_angle = P.get_rotation_angle(2)
+    assert P.is_left_turn(2) == (expected_rotation_angle < 0)
+
+
+def test_is_right_turn():
     P = Polygon([Vertex("V1", 3.4, 0), Vertex("V2", 1, 0), Vertex("V3", 1, 1)])
     expected_rotation_angle = P.get_rotation_angle(2)
-    assert P.is_left_turn(2) == (expected_rotation_angle > 0)
+    assert P.is_right_turn(2) == (expected_rotation_angle > 0)
 
 
 def test_center_polygon():
@@ -422,6 +429,14 @@ def test_move_and_eliminate():
     )
     P.move_and_eliminate(4)
     assert len(P.vertices) == 4
+    assert is_near(P.get_v_i(1).x, 1)
+    assert is_near(P.get_v_i(1).y, 0)
+    assert is_near(P.get_v_i(2).x, -1)
+    assert is_near(P.get_v_i(2).y, 0)
+    assert is_near(P.get_v_i(3).x, 0)
+    assert is_near(P.get_v_i(3).y, 1)
+    assert is_near(P.get_v_i(4).x, math.sqrt(2) / 2)
+    assert is_near(P.get_v_i(4).y, math.sqrt(2) / 2)
 
 
 def test_weak_translation_clockwise():
