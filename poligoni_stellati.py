@@ -125,13 +125,13 @@ class Polygon:
 
     def is_left_turn(self, i: int) -> bool:
         """Verifica se in v_i svolta a sinistra."""
-        if self.get_rotation_angle(i) < 0:
+        if self.get_rotation_angle(i) > 0:
             return True
         return False
 
     def is_right_turn(self, i: int) -> bool:
         """Verifica se in v_i svolta a destra."""
-        if self.get_rotation_angle(i) > 0:
+        if self.get_rotation_angle(i) < 0:
             return True
         return False
 
@@ -458,7 +458,7 @@ class Polygon:
         target_y = math.sin(target_angle)
         target = Vertex("Target", target_x, target_y)
 
-        v_i = self.get_v_i(i)
+        v_i = self.get_v(i)
 
         # Chiamo A l'arco fra v_i e target
         def is_in_arc_A(v: Vertex) -> bool:
@@ -515,7 +515,7 @@ class Polygon:
                     break
 
             # Costruiamo la lista finale prendendo i vertici
-            list_active_vertices = [self.get_v_i(
+            list_active_vertices = [self.get_v(
                 idx) for idx in active_indices]
             return list_active_vertices
 

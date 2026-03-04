@@ -55,10 +55,10 @@ def test_get_v_i():
         [Vertex("V1", 5.6, 2.9), Vertex(
             "V2", 3.2, 4.1), Vertex("V3", 7.6, 1.8)]
     )
-    assert P.get_v_i(2).name == "V2"
+    assert P.get_v(2).name == "V2"
     # DUBBIO: in questo caso deve restituire esattamente 3 e 4?
-    assert is_near(P.get_v_i(2).x, 3.2)
-    assert is_near(P.get_v_i(2).y, 4.1)
+    assert is_near(P.get_v(2).x, 3.2)
+    assert is_near(P.get_v(2).y, 4.1)
 
 
 def test_eliminate_vertex():
@@ -88,10 +88,10 @@ def test_get_rotation_angle():
     )
     rot_angle = P.get_rotation_angle(2)
     # Calcolo vettori V2->V1 e V3->V2
-    vec1_x = P.get_v_i(2).x - P.get_v_i(1).x
-    vec1_y = P.get_v_i(2).y - P.get_v_i(1).y
-    vec2_x = P.get_v_i(3).x - P.get_v_i(2).x
-    vec2_y = P.get_v_i(3).y - P.get_v_i(2).y
+    vec1_x = P.get_v(2).x - P.get_v(1).x
+    vec1_y = P.get_v(2).y - P.get_v(1).y
+    vec2_x = P.get_v(3).x - P.get_v(2).x
+    vec2_y = P.get_v(3).y - P.get_v(2).y
 
     # Calcolo prodotto scalare e norme
     dot_product = vec1_x * vec2_x + vec1_y * vec2_y
@@ -128,13 +128,13 @@ def test_is_left_turn():
     P = Polygon([Vertex("V1", 3.4, 0), Vertex(
         "V2", 1, 0), Vertex("V3", 1, -1)])
     expected_rotation_angle = P.get_rotation_angle(2)
-    assert P.is_left_turn(2) == (expected_rotation_angle < 0)
+    assert P.is_left_turn(2) == (expected_rotation_angle > 0)
 
 
 def test_is_right_turn():
     P = Polygon([Vertex("V1", 3.4, 0), Vertex("V2", 1, 0), Vertex("V3", 1, 1)])
     expected_rotation_angle = P.get_rotation_angle(2)
-    assert P.is_right_turn(2) == (expected_rotation_angle > 0)
+    assert P.is_right_turn(2) == (expected_rotation_angle < 0)
 
 
 def test_center_polygon():
@@ -151,8 +151,8 @@ def test_center_polygon():
     for i in range(1, 4):
         expected_x = coords[i - 1][0] - center_x
         expected_y = coords[i - 1][1] - center_y
-        assert is_near(P.get_v_i(i).x, expected_x)
-        assert is_near(P.get_v_i(i).y, expected_y)
+        assert is_near(P.get_v(i).x, expected_x)
+        assert is_near(P.get_v(i).y, expected_y)
 
 
 def test_is_circle():
@@ -302,14 +302,14 @@ def test_sort_vertices_clockwise():
             Vertex("V6", -2 * math.sqrt(2), 2 * math.sqrt(2))
         ]
     )
-    list_2 = [P_2.get_v_i(4), P_2.get_v_i(5), P_2.get_v_i(1), P_2.get_v_i(2)]
+    list_2 = [P_2.get_v(4), P_2.get_v(5), P_2.get_v(1), P_2.get_v(2)]
     sorted_vertices_2 = P_2.sort_vertices_clockwise(list_2)
     expected_order_2 = ["V4", "V2", "V5", "V1"]
     for v, expected_name in zip(sorted_vertices_2, expected_order_2):
         assert v.name == expected_name
 
-    list_3 = [P_2.get_v_i(4), P_2.get_v_i(6), P_2.get_v_i(
-        2), P_2.get_v_i(3), P_2.get_v_i(1)]
+    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(
+        2), P_2.get_v(3), P_2.get_v(1)]
     sorted_vertices_3 = P_2.sort_vertices_clockwise(list_3)
     expected_order_3 = ["V4", "V2", "V6", "V3", "V1"]
     for v, expected_name in zip(sorted_vertices_3, expected_order_3):
@@ -342,14 +342,14 @@ def test_sort_vertices_counterclockwise():
             Vertex("V6", -2 * math.sqrt(2), 2 * math.sqrt(2))
         ]
     )
-    list_2 = [P_2.get_v_i(4), P_2.get_v_i(5), P_2.get_v_i(1), P_2.get_v_i(2)]
+    list_2 = [P_2.get_v(4), P_2.get_v(5), P_2.get_v(1), P_2.get_v(2)]
     sorted_vertices_2 = P_2.sort_vertices_counterclockwise(list_2)
     expected_order_2 = ["V4", "V1", "V5", "V2"]
     for v, expected_name in zip(sorted_vertices_2, expected_order_2):
         assert v.name == expected_name
 
-    list_3 = [P_2.get_v_i(4), P_2.get_v_i(6), P_2.get_v_i(
-        2), P_2.get_v_i(3), P_2.get_v_i(1)]
+    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(
+        2), P_2.get_v(3), P_2.get_v(1)]
     sorted_vertices_3 = P_2.sort_vertices_counterclockwise(list_3)
     expected_order_3 = ["V4", "V1", "V3", "V6", "V2"]
     for v, expected_name in zip(sorted_vertices_3, expected_order_3):
@@ -381,7 +381,7 @@ def test_rotate_vertices():
     )
     P.rotate_vertex(3, +math.pi / 2)
     expected_angle = 3 * math.pi / 2
-    assert is_near(P.get_v_i(3).angle, expected_angle)
+    assert is_near(P.get_v(3).angle, expected_angle)
 
 
 def test_is_translation_regular():
@@ -413,8 +413,8 @@ def test_move_to_midpoint():
         ]
     )
     P.move_to_midpoint(4)
-    assert is_near(P.get_v_i(4).x, math.sqrt(2) / 4)
-    assert is_near(P.get_v_i(4).y, (2 + math.sqrt(2)) / 4)
+    assert is_near(P.get_v(4).x, math.sqrt(2) / 4)
+    assert is_near(P.get_v(4).y, (2 + math.sqrt(2)) / 4)
 
 
 def test_move_and_eliminate():
@@ -429,14 +429,14 @@ def test_move_and_eliminate():
     )
     P.move_and_eliminate(4)
     assert len(P.vertices) == 4
-    assert is_near(P.get_v_i(1).x, 1)
-    assert is_near(P.get_v_i(1).y, 0)
-    assert is_near(P.get_v_i(2).x, -1)
-    assert is_near(P.get_v_i(2).y, 0)
-    assert is_near(P.get_v_i(3).x, 0)
-    assert is_near(P.get_v_i(3).y, 1)
-    assert is_near(P.get_v_i(4).x, math.sqrt(2) / 2)
-    assert is_near(P.get_v_i(4).y, math.sqrt(2) / 2)
+    assert is_near(P.get_v(1).x, 1)
+    assert is_near(P.get_v(1).y, 0)
+    assert is_near(P.get_v(2).x, -1)
+    assert is_near(P.get_v(2).y, 0)
+    assert is_near(P.get_v(3).x, 0)
+    assert is_near(P.get_v(3).y, 1)
+    assert is_near(P.get_v(4).x, math.sqrt(2) / 2)
+    assert is_near(P.get_v(4).y, math.sqrt(2) / 2)
 
 
 def test_weak_translation_clockwise():
@@ -454,9 +454,9 @@ def test_weak_translation_clockwise():
     )
     P_1.weak_translation_clockwise(1, math.pi / 6)
     # Si vede dal disegno che V1, V3 e V7 sono quelli che vanno traslati
-    assert is_near(P_1.get_v_i(1).angle, math.pi / 6)
-    assert is_near(P_1.get_v_i(3).angle, math.pi / 9)
-    assert is_near(P_1.get_v_i(7).angle, math.pi / 18)
+    assert is_near(P_1.get_v(1).angle, math.pi / 6)
+    assert is_near(P_1.get_v(3).angle, math.pi / 9)
+    assert is_near(P_1.get_v(7).angle, math.pi / 18)
 
     P_2 = Polygon(
         [
@@ -468,7 +468,7 @@ def test_weak_translation_clockwise():
     )
     P_2.weak_translation_clockwise(3, math.pi / 3)
     # Si vede dal disegno che viene traslato solo V3
-    assert is_near(P_2.get_v_i(3).angle, math.pi / 3)
+    assert is_near(P_2.get_v(3).angle, math.pi / 3)
 
     P_3 = Polygon(
         [
@@ -482,8 +482,8 @@ def test_weak_translation_clockwise():
     )
     P_3.weak_translation_clockwise(6, 4 * math.pi / 3)
     # Si vede dal disegno che V1, V3 e V7 sono quelli che vanno traslati
-    assert is_near(P_3.get_v_i(6).angle, 4 * math.pi / 3)
-    assert is_near(P_3.get_v_i(2).angle, 7 * math.pi / 6)
+    assert is_near(P_3.get_v(6).angle, 4 * math.pi / 3)
+    assert is_near(P_3.get_v(2).angle, 7 * math.pi / 6)
 
 
 def test_weak_translation_counterclockwise():
@@ -500,6 +500,6 @@ def test_weak_translation_counterclockwise():
         ]
     )
     P_1.weak_translation_counterclockwise(7, 5 * math.pi / 6)
-    assert is_near(P_1.get_v_i(7).angle, 5 * math.pi / 6)
-    assert is_near(P_1.get_v_i(3).angle, 16 * math.pi / 18)
-    assert is_near(P_1.get_v_i(1).angle, 17 * math.pi / 18)
+    assert is_near(P_1.get_v(7).angle, 5 * math.pi / 6)
+    assert is_near(P_1.get_v(3).angle, 16 * math.pi / 18)
+    assert is_near(P_1.get_v(1).angle, 17 * math.pi / 18)
