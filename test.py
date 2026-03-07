@@ -98,7 +98,7 @@ def test_get_rotation_angle():
     norm_1 = math.sqrt(vec1_x ** 2 + vec1_y ** 2)
     norm_2 = math.sqrt(vec2_x ** 2 + vec2_y ** 2)
     abs_value_rot_vi = math.acos(dot_product / (norm_1 * norm_2))
-    det = vec2_x * vec1_y - vec2_y * vec1_x
+    det = vec1_x * vec2_y - vec1_y * vec2_x
     expected_angle = math.copysign(abs_value_rot_vi, det)
     assert is_near(rot_angle, expected_angle)
 
@@ -127,14 +127,28 @@ def test_get_winding_number():
 def test_is_left_turn():
     P = Polygon([Vertex("V1", 3.4, 0), Vertex(
         "V2", 1, 0), Vertex("V3", 1, -1)])
-    expected_rotation_angle = P.get_rotation_angle(2)
-    assert P.is_left_turn(2) == (expected_rotation_angle > 0)
+    assert P.is_left_turn(2)
+    P_2 = Polygon([
+        Vertex("V1", -math.sqrt(3)/2, 0.5),
+        Vertex("V2", math.sqrt(3)/2, 0.5),
+        Vertex("V3", -math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V4", math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V5", 0, 1)
+    ])
+    assert P_2.is_left_turn(4)
 
 
 def test_is_right_turn():
     P = Polygon([Vertex("V1", 3.4, 0), Vertex("V2", 1, 0), Vertex("V3", 1, 1)])
-    expected_rotation_angle = P.get_rotation_angle(2)
-    assert P.is_right_turn(2) == (expected_rotation_angle < 0)
+    assert P.is_right_turn(2)
+    P_2 = Polygon([
+        Vertex("V1", -math.sqrt(3)/2, 0.5),
+        Vertex("V2", math.sqrt(3)/2, 0.5),
+        Vertex("V3", -math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V4", math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V5", 0, 1)
+    ])
+    assert P_2.is_right_turn(3)
 
 
 def test_center_polygon():
@@ -401,6 +415,18 @@ def test_is_translation_regular():
     B = Vertex("B", -math.sqrt(2) / 2, + math.sqrt(2) / 2)
     assert not P.is_translation_regular(4, B)
 
+    P_2 = Polygon([
+        Vertex("V1", -math.sqrt(3)/2, 0.5),
+        Vertex("V2", math.sqrt(3)/2, 0.5),
+        Vertex("V3", -math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V4", math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V5", 0, 1)
+    ])
+    M_x = (math.sqrt(3) / 2 + math.sqrt(2) / 2) / 2
+    M_y = (0.5 + math.sqrt(2) / 2) / 2
+    M = Vertex("M", M_x, M_y)
+    assert P_2.is_translation_regular(4, M)
+
 
 def test_move_to_midpoint():
     P = Polygon(
@@ -415,6 +441,17 @@ def test_move_to_midpoint():
     P.move_to_midpoint(4)
     assert is_near(P.get_v(4).x, math.sqrt(2) / 4)
     assert is_near(P.get_v(4).y, (2 + math.sqrt(2)) / 4)
+
+    P_2 = Polygon([
+        Vertex("V1", -math.sqrt(3)/2, 0.5),
+        Vertex("V2", math.sqrt(3)/2, 0.5),
+        Vertex("V3", -math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V4", math.sqrt(2) / 2, math.sqrt(2) / 2),
+        Vertex("V5", 0, 1)
+    ])
+    P_2.move_to_midpoint(3)
+    assert is_near(P_2.get_v(3).x, (math.sqrt(3) / 2 + math.sqrt(2) / 2) / 2)
+    assert is_near(P_2.get_v(3).y, (0.5 + math.sqrt(2) / 2) / 2)
 
 
 def test_move_and_eliminate():

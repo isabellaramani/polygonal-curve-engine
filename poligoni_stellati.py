@@ -1,5 +1,6 @@
 
 import math
+import copy
 
 TOLERANCE = 0.0005
 
@@ -55,6 +56,11 @@ class Polygon:
             self.vertices = []
         else:
             self.vertices = vertices
+        self.history = []
+
+    def save_state(self) -> None:
+        """Salva lo stato attuale del poligono nella cronologia."""
+        self.history.append(copy.deepcopy(self.vertices))
 
     def is_empty(self) -> bool:
         """Verifica se il poligono è vuoto."""
@@ -92,15 +98,15 @@ class Polygon:
 
     def get_rotation_angle(self, i: int) -> float:
         """Calcola l'angolo di rotazione di v_i."""
-        V_i = self.get_v(i)
-        V_ip1 = self.get_v(i + 1)
-        V_im1 = self.get_v(i - 1)
+        v_i = self.get_v(i)
+        v_ip1 = self.get_v(i + 1)
+        v_im1 = self.get_v(i - 1)
 
         # Calcolo dei vettori v_im1->v_i e v_i->v_ip1.
-        vec1_x = V_i.x - V_im1.x
-        vec1_y = V_i.y - V_im1.y
-        vec2_x = V_ip1.x - V_i.x
-        vec2_y = V_ip1.y - V_i.y
+        vec1_x = v_i.x - v_im1.x
+        vec1_y = v_i.y - v_im1.y
+        vec2_x = v_ip1.x - v_i.x
+        vec2_y = v_ip1.y - v_i.y
 
         # Calcolo prodotto scalare.
         dot_product = vec1_x * vec2_x + vec1_y * vec2_y
@@ -108,7 +114,7 @@ class Polygon:
         norm_2 = math.sqrt(vec2_x ** 2 + vec2_y ** 2)
 
         abs_value_rot_vi = math.acos(dot_product / (norm_1 * norm_2))
-        det = vec2_x * vec1_y - vec2_y * vec1_x
+        det = vec1_x * vec2_y - vec1_y * vec2_x
         rot_vi = math.copysign(abs_value_rot_vi, det)
         return rot_vi
 
@@ -420,7 +426,7 @@ class Polygon:
         # Punto opposto a v_im1 sulla semiretta v_ip1-vim1
         test_point_v_ip1 = Vertex("Test point 2",
                                   V_ip1.x - (V_im1.x - V_ip1.x),
-                                  V_ip1.x - (V_im1.x - V_ip1.x))
+                                  V_ip1.y - (V_im1.y - V_ip1.y))
         # P deve appartenere al cono contenente v_i
         # formato da v_im1-test_point_v_im1
         if is_in_cone(V_ip1, test_point_v_ip1, V_ip2, V_i, U) is False:
@@ -634,10 +640,8 @@ class Polygon:
 
         # Lista dei vertici attivi
         active_vertices = get_active_vertices()
-        print("Active vertices:", [v.name for v in active_vertices])
         # Lista dei vertici attivi di A
         active_vertices_in_A = [v for v in active_vertices if is_in_arc_A(v)]
-        print("Active vertices in A:", [v.name for v in active_vertices_in_A])
         # Lista dei vertici attivi di A da traslare
         # in ordine (ovvero ordinati in senso antiorario  !A PARTIRE DA v_i)
         active_vertices_in_A.remove(v_i)
@@ -647,7 +651,6 @@ class Polygon:
             reversed(
                 self.sort_vertices_counterclockwise(
                     active_vertices_in_A)))
-        print("Active vertices in A:", [v.name for v in active_vertices_in_A])
 
         # Calcolo il vertice successivo al vertice target
 
