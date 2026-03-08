@@ -14,28 +14,29 @@ class PolygonVisualizer:
         plt.subplots_adjust(bottom=0.2)
 
         # Disegniamo la circonferenza unitaria
-        circle = plt.Circle((0, 0), 1, color='gray',
-                            fill=False, linestyle='--', alpha=0.5)
+        circle = plt.Circle(
+            (0, 0), 1, color="gray", fill=False, linestyle="--", alpha=0.5
+        )
         self.ax.add_patch(circle)
 
-        self.line, = self.ax.plot([], [], 'b-', linewidth=2)
-        self.scatter = self.ax.scatter([], [], color='red', zorder=5)
+        (self.line,) = self.ax.plot([], [], "b-", linewidth=2)
+        self.scatter = self.ax.scatter([], [], color="red", zorder=5)
         self.my_texts = []
 
         self.ax.set_xlim(-1.5, 1.5)
         self.ax.set_ylim(-1.5, 1.5)
-        self.ax.set_aspect('equal')
+        self.ax.set_aspect("equal")
 
         # Botton indietro e avanti
         axprev = plt.axes([0.2, 0.05, 0.2, 0.075])
         axnext = plt.axes([0.6, 0.05, 0.2, 0.075])
 
         # Creiamo il bottone Indietro
-        self.bprev = Button(axprev, '<- Indietro')
+        self.bprev = Button(axprev, "<- Indietro")
         self.bprev.on_clicked(self.prev_step)  # Cosa fa quando clicchi
 
         # Creiamo il bottone Avanti
-        self.bnext = Button(axnext, 'Avanti ->')
+        self.bnext = Button(axnext, "Avanti ->")
         self.bnext.on_clicked(self.next_step)  # Cosa fa quando clicchi
 
     def draw_step(self, idx):
@@ -62,8 +63,7 @@ class PolygonVisualizer:
 
         # Aggiungiamo i nomi dei vertici vicino ai punti
         for v in vertices:
-            t = self.ax.text(v.x * 1.1, v.y * 1.1, v.name,
-                             fontsize=10, ha='center')
+            t = self.ax.text(v.x * 1.1, v.y * 1.1, v.name, fontsize=10, ha="center")
             self.my_texts.append(t)
 
         # Aggiorniamo il titolo con il numero del passo

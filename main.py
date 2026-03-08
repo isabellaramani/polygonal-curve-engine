@@ -10,9 +10,8 @@ print("Inserisci le coordinate dei vertici. Per terminare, digita 'fine'.")
 
 idx = 1
 while True:
-    input_string = input(
-        f"Inserisci le coordinate (x y) del vertice {idx}-esimo: ")
-    if input_string.lower() == 'fine':
+    input_string = input(f"Inserisci le coordinate (x y) del vertice {idx}-esimo: ")
+    if input_string.lower() == "fine":
         break
     try:
         x, y = map(float, input_string.split())
@@ -50,21 +49,21 @@ else:
         raise ValueError("La curva poligonale non è inscritta in un cerchio.")
     # Porto la curva poliginale su circonferenza di raggio 1
     # Controlla se c'è ALMENO UN vertice fuori dalla circonferenza unitaria
-    if any(not is_near(math.hypot(v.x, v.y), 1.0)
-           for v in P_transformed.vertices):
+    if any(not is_near(math.hypot(v.x, v.y), 1.0) for v in P_transformed.vertices):
         P_transformed.get_unitary_radius()
         P_transformed.save_state()
 
     # Elimino i vertici appartenenti ai lati
-    for i in range(3, n+1):
+    for i in range(3, n + 1):
         if is_near(P_transformed.get_rotation_angle(i), 0):
             P_transformed.eliminate_vertex(i)
             P_transformed.save_state()
             print(f"Eliminato vertice {i} perché appartiene già ad un lato.")
 
     # Porto il vertice v1 in (-1,0)
-    if (not is_near(P_transformed.get_v(1).x, -1) or
-            not is_near(P_transformed.get_v(1).y, 0)):
+    if not is_near(P_transformed.get_v(1).x, -1) or not is_near(
+        P_transformed.get_v(1).y, 0
+    ):
         if P_transformed.get_v(1).angle < math.pi:
             P_transformed.weak_translation_counterclockwise(1, math.pi)
             P_transformed.save_state()
@@ -75,8 +74,9 @@ else:
         print("Vertice v1 già in (-1,0).")
 
     # Porto il vertice v2 in (1,0)
-    if (not is_near(P_transformed.get_v(2).x, 1) or
-            not is_near(P_transformed.get_v(2).y, 0)):
+    if not is_near(P_transformed.get_v(2).x, 1) or not is_near(
+        P_transformed.get_v(2).y, 0
+    ):
         if P_transformed.get_v(2).angle < math.pi:
             P_transformed.weak_translation_clockwise(2, 0)
             P_transformed.save_state()
@@ -133,14 +133,14 @@ else:
 
             if curr_idx % 2 == 0:
                 # Caso C
-                if P_transformed.is_right_turn(curr_idx-1):
+                if P_transformed.is_right_turn(curr_idx - 1):
                     # Caso C1
                     if P_transformed.is_left_turn(curr_idx):
 
-                        P_transformed.move_to_midpoint(curr_idx-1)
+                        P_transformed.move_to_midpoint(curr_idx - 1)
                         P_transformed.save_state()
 
-                        P_transformed.eliminate_vertex(curr_idx-1)
+                        P_transformed.eliminate_vertex(curr_idx - 1)
                         P_transformed.save_state()
                         # Decremento curr_idx di 1 perché ho tolto un vertice
                         # e devo ripetere il controllo sul vertice corrente
@@ -150,24 +150,29 @@ else:
                     else:
                         # Caso C21
                         if P_transformed.is_counterclockwise(
-                                [P_transformed.get_v(curr_idx),
-                                 P_transformed.get_v(curr_idx+1),
-                                 P_transformed.get_v(1)]):
+                            [
+                                P_transformed.get_v(curr_idx),
+                                P_transformed.get_v(curr_idx + 1),
+                                P_transformed.get_v(1),
+                            ]
+                        ):
                             if P_transformed.is_counterclockwise(
-                                    [P_transformed.get_v(curr_idx),
-                                     P_transformed.get_v(curr_idx+1),
-                                     P_transformed.get_v(curr_idx-2)]):
-                                P_transformed.move_and_eliminate(
-                                    curr_idx-2)
+                                [
+                                    P_transformed.get_v(curr_idx),
+                                    P_transformed.get_v(curr_idx + 1),
+                                    P_transformed.get_v(curr_idx - 2),
+                                ]
+                            ):
+                                P_transformed.move_and_eliminate(curr_idx - 2)
                             else:
                                 angle = (
-                                    P_transformed.get_v(curr_idx-2).angle -
-                                    math.pi / 1000)
-                                P_transformed.\
-                                    weak_translation_clockwise(
-                                        curr_idx-2, angle)
-                                P_transformed.move_and_eliminate(
-                                    curr_idx-2)
+                                    P_transformed.get_v(curr_idx - 2).angle
+                                    - math.pi / 1000
+                                )
+                                P_transformed.weak_translation_clockwise(
+                                    curr_idx - 2, angle
+                                )
+                                P_transformed.move_and_eliminate(curr_idx - 2)
                         continue
                 continue
 
