@@ -52,7 +52,8 @@ def test_add_vertex():
 
 def test_get_v_i():
     P = Polygon(
-        [Vertex("V1", 5.6, 2.9), Vertex("V2", 3.2, 4.1), Vertex("V3", 7.6, 1.8)]
+        [Vertex("V1", 5.6, 2.9), Vertex(
+            "V2", 3.2, 4.1), Vertex("V3", 7.6, 1.8)]
     )
     assert P.get_v(2).name == "V2"
     # DUBBIO: in questo caso deve restituire esattamente 3 e 4?
@@ -61,7 +62,8 @@ def test_get_v_i():
 
 
 def test_eliminate_vertex():
-    P_1 = Polygon([Vertex("V1", 1, 0), Vertex("V2", 0, 0), Vertex("V3", -4, 0)])
+    P_1 = Polygon([Vertex("V1", 1, 0), Vertex(
+        "V2", 0, 0), Vertex("V3", -4, 0)])
     P_1.eliminate_vertex(2)
     assert len(P_1.vertices) == 2
     P_2 = Polygon([Vertex("V1", 0, 0), Vertex("V2", 1, 2), Vertex("V3", 2, 4)])
@@ -118,7 +120,8 @@ def test_get_winding_number():
 
 
 def test_is_left_turn():
-    P = Polygon([Vertex("V1", 3.4, 0), Vertex("V2", 1, 0), Vertex("V3", 1, -1)])
+    P = Polygon([Vertex("V1", 3.4, 0), Vertex(
+        "V2", 1, 0), Vertex("V3", 1, -1)])
     assert P.is_left_turn(2)
     P_2 = Polygon(
         [
@@ -149,7 +152,8 @@ def test_is_right_turn():
 
 def test_center_polygon():
     P = Polygon(
-        [Vertex("V1", 1.5, 2.4), Vertex("V2", 3.6, 4.1), Vertex("V3", 2.7, 9.8)]
+        [Vertex("V1", 1.5, 2.4), Vertex(
+            "V2", 3.6, 4.1), Vertex("V3", 2.7, 9.8)]
     )
     coords = [(1.5, 2.4), (3.6, 4.1), (2.7, 9.8)]
     # Calcolo centro
@@ -208,11 +212,13 @@ def test_is_clockwise():
     )
     assert P_1.is_clockwise(P_1.vertices)
     P_2 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
     )
     assert P_2.is_clockwise(P_2.vertices)
     P_3 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
     )
     assert not P_3.is_clockwise(P_3.vertices)
     P_4 = Polygon(
@@ -225,8 +231,31 @@ def test_is_clockwise():
         ]
     )
     assert P_4.is_clockwise(P_4.vertices)
-    P_5 = Polygon([Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
-    assert not P_5.is_clockwise(P_5.vertices)
+    P_5 = Polygon(
+        [Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
+    assert P_5.is_clockwise(P_5.vertices)
+
+    P_6 = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                   Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                             0.707107, -0.707107),
+                   Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
+                   Vertex("v7", -0.866025, -0.5), Vertex("v8", 0, 1)])
+    assert P_6.is_clockwise([P_6.get_v(7), P_6.get_v(8), P_6.get_v(2)])
+    assert P_6.is_clockwise([P_6.get_v(7), P_6.get_v(8), P_6.get_v(5)])
+
+    P_7 = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                   Vertex("v3", 0, 1), Vertex("v4",
+                                              0, -1),
+                   Vertex("v5", 0.707107, -0.707107), Vertex(
+        "v6", 0.5, -0.866025)
+    ])
+    assert P_7.is_clockwise([P_7.get_v(2), P_7.get_v(2), P_7.get_v(5)])
+
+    P_8 = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
+                   Vertex("v3", 0, 1), Vertex("v4", 0.707107, -0.707107),
+                   Vertex("v5", -0.707107, -0.707107), Vertex("v6", 0, -1)])
+    assert not P_8.is_clockwise([P_8.get_v(5),
+                                 P_8.get_v(6), P_8.get_v(1)])
 
 
 def test_is_counterclockwise():
@@ -240,11 +269,13 @@ def test_is_counterclockwise():
     )
     assert not P_1.is_counterclockwise(P_1.vertices)
     P_2 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
     )
     assert not P_2.is_counterclockwise(P_2.vertices)
     P_3 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2),
+         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
     )
     assert P_3.is_counterclockwise(P_3.vertices)
     P_4 = Polygon(
@@ -257,7 +288,8 @@ def test_is_counterclockwise():
         ]
     )
     assert not P_4.is_counterclockwise(P_4.vertices)
-    P_5 = Polygon([Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
+    P_5 = Polygon(
+        [Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
     assert P_5.is_counterclockwise(P_5.vertices)
 
 
@@ -311,7 +343,8 @@ def test_sort_vertices_clockwise():
     for v, expected_name in zip(sorted_vertices_2, expected_order_2):
         assert v.name == expected_name
 
-    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2), P_2.get_v(3), P_2.get_v(1)]
+    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2),
+              P_2.get_v(3), P_2.get_v(1)]
     sorted_vertices_3 = P_2.sort_vertices_clockwise(list_3)
     expected_order_3 = ["V4", "V2", "V6", "V3", "V1"]
     for v, expected_name in zip(sorted_vertices_3, expected_order_3):
@@ -354,7 +387,8 @@ def test_sort_vertices_counterclockwise():
     for v, expected_name in zip(sorted_vertices_2, expected_order_2):
         assert v.name == expected_name
 
-    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2), P_2.get_v(3), P_2.get_v(1)]
+    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2),
+              P_2.get_v(3), P_2.get_v(1)]
     sorted_vertices_3 = P_2.sort_vertices_counterclockwise(list_3)
     expected_order_3 = ["V4", "V1", "V3", "V6", "V2"]
     for v, expected_name in zip(sorted_vertices_3, expected_order_3):
@@ -535,3 +569,27 @@ def test_weak_translation_counterclockwise():
     assert is_near(P_1.get_v(7).angle, 5 * math.pi / 6)
     assert is_near(P_1.get_v(3).angle, 16 * math.pi / 18)
     assert is_near(P_1.get_v(1).angle, 17 * math.pi / 18)
+
+
+def test_get_next_clockwise():
+    P = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", 0, 1),
+            Vertex("V3", -1, 0),
+            Vertex("V4", 0, -1),
+        ]
+    )
+    assert P.get_next_clockwise(1).name == "V4"
+
+
+def test_get_next_counterclockwise():
+    P = Polygon(
+        [
+            Vertex("V1", 1, 0),
+            Vertex("V2", 0, 1),
+            Vertex("V3", -1, 0),
+            Vertex("V4", 0, -1),
+        ]
+    )
+    assert P.get_next_counterclockwise(1).name == "V2"

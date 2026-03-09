@@ -226,10 +226,12 @@ class Polygon:
         """Porta tutti i vertici di un poligono già su una
         circonferenza su circonferenza unitaria."""
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
         for v in self.vertices:
             v.change_coordinates(
-                v.x / math.sqrt(v.x**2 + v.y**2), v.y / math.sqrt(v.x**2 + v.y**2)
+                v.x / math.sqrt(v.x**2 + v.y**2), v.y /
+                math.sqrt(v.x**2 + v.y**2)
             )
 
     def is_clockwise(self, list_vertices: list[Vertex]) -> bool:
@@ -237,9 +239,23 @@ class Polygon:
         sono ordinati in senso orario
         (accetta anche vertici non distinti)."""
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
 
+        cleaned_list = [list_vertices[0]]
+
+        # Tolgo uno dei vertici consecutivi uguali
+        for i in range(1, len(list_vertices)):
+            v_current = list_vertices[i]
+            v_prev = cleaned_list[-1]
+
+            # Se il vertice corrente è diverso dall'ultimo inserito, lo aggiungo
+            if v_current != v_prev and not is_near(v_current.angle, v_prev.angle):
+                cleaned_list.append(v_current)
+
+        list_vertices = cleaned_list
         n = len(list_vertices)
+
         if n <= 2:
             return True
 
@@ -247,10 +263,12 @@ class Polygon:
         base_angle = list_vertices[0].angle
 
         for j in range(1, n - 1):
+
             current_angle = list_vertices[j].angle
             # Calcolo la differenza angolare rispetto all'angolo di riferimento
             # Sarà crescente in senso antiorario
-            current_angle_normalised = (current_angle - base_angle) % (2 * math.pi)
+            current_angle_normalised = (
+                current_angle - base_angle) % (2 * math.pi)
             next_angle = list_vertices[(j + 1) % n].angle
             next_angle_normalised = (next_angle - base_angle) % (2 * math.pi)
 
@@ -276,8 +294,21 @@ class Polygon:
         sono ordinati in senso antiorario
         (accetta anche vertici non distinti)."""
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
 
+        cleaned_list = [list_vertices[0]]
+
+        # Tolgo uno dei vertici consecutivi uguali
+        for i in range(1, len(list_vertices)):
+            v_current = list_vertices[i]
+            v_prev = cleaned_list[-1]
+
+            # Se il vertice corrente è diverso dall'ultimo inserito, lo aggiungo
+            if v_current != v_prev and not is_near(v_current.angle, v_prev.angle):
+                cleaned_list.append(v_current)
+
+        list_vertices = cleaned_list
         n = len(list_vertices)
         if n <= 2:
             return True
@@ -289,7 +320,8 @@ class Polygon:
             current_angle = list_vertices[j].angle
             # Calcolo la differenza angolare rispetto all'angolo di riferimento
             # Sarà crescente in senso antiorario
-            current_angle_normalised = (current_angle - base_angle) % (2 * math.pi)
+            current_angle_normalised = (
+                current_angle - base_angle) % (2 * math.pi)
             next_angle = list_vertices[(j + 1) % n].angle
             next_angle_normalised = (next_angle - base_angle) % (2 * math.pi)
 
@@ -314,7 +346,8 @@ class Polygon:
         """Restituisce i vertici ordinati in senso orario
         a partire dal primo vertice della lista."""
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
         if self.is_clockwise(list_vertices):
             return list_vertices
         else:
@@ -335,7 +368,8 @@ class Polygon:
         """Restituisce i vertici ordinati in senso antiorario
         a partire dal primo vertice della lista."""
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
         if self.is_counterclockwise(list_vertices):
             return list_vertices
         else:
@@ -353,7 +387,8 @@ class Polygon:
     def get_equispaced_vertices(self) -> None:
         """Equidistanza i vertici del poligono sulla circonferenza"""
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
         n = len(self.vertices)
         sorted_vertices = self.sort_vertices_clockwise(self.vertices)
         base_angle = sorted_vertices[0].angle
@@ -403,7 +438,8 @@ class Polygon:
 
         # Punto opposto a v_ip1 sulla semiretta v_im1-vip1
         test_point_v_im1 = Vertex(
-            "Test point 1", V_im1.x - (V_ip1.x - V_im1.x), V_im1.y - (V_ip1.y - V_im1.y)
+            "Test point 1", V_im1.x -
+            (V_ip1.x - V_im1.x), V_im1.y - (V_ip1.y - V_im1.y)
         )
         # P deve appartenere al cono contenente v_i
         # formato da v_im1-test_point_v_im1
@@ -413,7 +449,8 @@ class Polygon:
         # Cono relativo a v_i in v_ip1
         # Punto opposto a v_im1 sulla semiretta v_ip1-vim1
         test_point_v_ip1 = Vertex(
-            "Test point 2", V_ip1.x - (V_im1.x - V_ip1.x), V_ip1.y - (V_im1.y - V_ip1.y)
+            "Test point 2", V_ip1.x -
+            (V_im1.x - V_ip1.x), V_ip1.y - (V_im1.y - V_ip1.y)
         )
         # P deve appartenere al cono contenente v_i
         # formato da v_im1-test_point_v_im1
@@ -446,7 +483,8 @@ class Polygon:
         (vedi lemma 2.12)."""
 
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
 
         target_x = math.cos(target_angle)
         target_y = math.sin(target_angle)
@@ -533,7 +571,8 @@ class Polygon:
 
         # Vertici del poligono e target ordinati
         # in senso orario a partire da v1
-        sorted_vertices = self.sort_vertices_clockwise(self.vertices + [target])
+        sorted_vertices = self.sort_vertices_clockwise(
+            self.vertices + [target])
 
         # Chiediamo in che posizione si trova il target
         indice_target = sorted_vertices.index(target)
@@ -559,7 +598,8 @@ class Polygon:
         (vedi lemma 2.12)."""
 
         if self.is_circle() is False:
-            raise ValueError("I vertici non appartengono ad una circonferenza.")
+            raise ValueError(
+                "I vertici non appartengono ad una circonferenza.")
 
         target_x = math.cos(target_angle)
         target_y = math.sin(target_angle)
@@ -646,7 +686,8 @@ class Polygon:
 
         # Vertici del poligono e target ordinati
         # in senso antiorario a partire da v1
-        sorted_vertices = self.sort_vertices_counterclockwise(self.vertices + [target])
+        sorted_vertices = self.sort_vertices_counterclockwise(
+            self.vertices + [target])
 
         # Chiediamo in che posizione si trova il target
         indice_target = sorted_vertices.index(target)
@@ -665,3 +706,31 @@ class Polygon:
             v_y = math.sin(angle_v)
             v.change_coordinates(v_x, v_y)
         print([v.angle for v in self.vertices])
+
+    def get_next_clockwise(self, i: int) -> Vertex:
+        """Restituisce il vertice successivo all'i-esimo in senso orario."""
+        sorted_vertices = self.sort_vertices_clockwise(self.vertices)
+        start_vertex = self.get_v(i)
+
+        # Trovo in che posizione si trova ora nella lista ordinata
+        current_idx = sorted_vertices.index(start_vertex)
+
+        # Calcolo l'indice successivo.
+        next_idx = (current_idx + 1) % len(sorted_vertices)
+
+        # Ritorno il vertice trovato
+        return sorted_vertices[next_idx]
+
+    def get_next_counterclockwise(self, i: int) -> Vertex:
+        """Restituisce il vertice successivo all'i-esimo in senso antiorario."""
+        sorted_vertices = self.sort_vertices_counterclockwise(self.vertices)
+        start_vertex = self.get_v(i)
+
+        # Trovo in che posizione si trova ora nella lista ordinata
+        current_idx = sorted_vertices.index(start_vertex)
+
+        # Calcolo l'indice successivo.
+        next_idx = (current_idx + 1) % len(sorted_vertices)
+
+        # Ritorno il vertice trovato
+        return sorted_vertices[next_idx]
