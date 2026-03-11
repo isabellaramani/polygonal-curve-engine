@@ -1,5 +1,6 @@
 import math
 import copy
+import random
 from poligoni_stellati import Vertex, Polygon, is_near
 from visualizer import PolygonVisualizer
 
@@ -25,85 +26,85 @@ while True:
 
 # Verifiche dei passi dell'algoritmo su casi specifici
 
-# Caso A1 su v5
+"""# Caso A1 su tutti i vertici
 P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
              Vertex("v3", 0, 1), Vertex("v4", 0.707107, -0.707107),
              Vertex("v5", -0.707107, -0.707107), Vertex("v6", 0, -1)])
 # Verificato"""
 
-"""# Caso A211 su v7
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                        0.707107, -0.707107),
-                Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
-                Vertex("v7", -0.866025, -0.5), Vertex("v8", 0, 1)])
-    # Verificato"""
+"""# Caso A211 su tutti i vertici
+P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
+             Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                       0.707107, -0.707107),
+             Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
+             Vertex("v7", -0.866025, -0.5), Vertex("v8", 0, 1)])
+# Verificato"""
 
-"""# Caso A212 su v7
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                        0.707107, -0.707107),
-                Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
-                Vertex("v7", -0.866025, -0.5), Vertex("v8", 0.866025, 0.5)])
-    # Verificato"""
+"""# Caso A212 su tutti i vertici
+P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+             Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                       0.707107, -0.707107),
+             Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
+             Vertex("v7", -0.866025, -0.5), Vertex("v8", 0.866025, 0.5)])
+# Verificato"""
 
-"""# Caso A22 su v7
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                        0.707107, -0.707107),
-                Vertex("v5", 0.707107, 0.707107), Vertex(
-                    "v6", -0.707107, -0.707107),
-                Vertex("v7", 0, 1), Vertex("v8", 0, -1)])
-    # Verificato"""
+"""# Caso A22 su tutti i vertici
+P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+             Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                       0.707107, -0.707107),
+             Vertex("v5", 0.707107, 0.707107), Vertex(
+    "v6", -0.707107, -0.707107),
+    Vertex("v7", 0, 1), Vertex("v8", 0, -1)])
+# Verificato"""
 
-"""# Caso A231 su v5
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                            0, -1),
-                Vertex("v5", -0.707107, -0.707107), Vertex(
-                    "v6", 0.707107, -0.707107),
-                Vertex("v7", -0.707107, 0.707107)])
-    # Verificato"""
+"""# Caso A231 su tutti i vertici
+P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+             Vertex("v3", 0, 1), Vertex("v4",
+                                        0, -1),
+             Vertex("v5", -0.707107, -0.707107), Vertex(
+    "v6", 0.707107, -0.707107),
+    Vertex("v7", -0.707107, 0.707107)])
+# Verificato"""
 
-"""# Caso A2321 su v5
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                            0, -1),
-                Vertex("v5", -0.707107, -0.707107), Vertex(
-                    "v6", 0.707107, -0.707107),
-                Vertex("v7", -0.866025, -0.5), Vertex(
-                    "v8", 0.866025, 0.5)])
-    # Verificato"""
+"""# Caso A2321 su tutti i vertici
+P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+             Vertex("v3", 0, 1), Vertex("v4",
+                                        0, -1),
+             Vertex("v5", -0.707107, -0.707107), Vertex(
+    "v6", 0.707107, -0.707107),
+    Vertex("v7", -0.866025, -0.5), Vertex(
+    "v8", 0.866025, 0.5)])
+# Verificato"""
 
-"""# Caso A2322 su v5
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                            0.707107, -0.707107),
-                Vertex("v5", -0.707107, -0.707107), Vertex(
-                    "v6", 0.866025, -0.5),
-                Vertex("v7", -0.866025, -0.5), Vertex(
-                    "v8", 0, -1)])
-    # Verificato"""
+"""# Caso A2322 su tutti i vertici
+P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+             Vertex("v3", 0, 1), Vertex("v4",
+                                        0.707107, -0.707107),
+             Vertex("v5", -0.707107, -0.707107), Vertex(
+    "v6", 0.866025, -0.5),
+    Vertex("v7", -0.866025, -0.5), Vertex(
+    "v8", 0, -1)])
+# Verificato"""
 
-"""# Caso B21 su v5
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                            0, -1),
-                Vertex("v5", 0.707107, -0.707107), Vertex(
-                    "v6", 0.5, -0.866025)
-                ])
-    # Verificato"""
+"""# Caso B21 su tutti i vertici
+P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+             Vertex("v3", 0, 1), Vertex("v4",
+                                        0, -1),
+             Vertex("v5", 0.707107, -0.707107), Vertex(
+    "v6", 0.5, -0.866025)
+])
+# Verificato"""
 
-"""# Caso B2211 su v5
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                            0, -1),
-                Vertex("v5", 0.707107, -0.707107), Vertex(
-                    "v6", -0.5, -0.866025), Vertex("v7", 0.866025, 0.5)
-                ])
-    # Verificato"""
+"""# Caso B2211 su tutti i vertici
+P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+             Vertex("v3", 0, 1), Vertex("v4",
+                                        0, -1),
+             Vertex("v5", 0.707107, -0.707107), Vertex(
+    "v6", -0.5, -0.866025), Vertex("v7", 0.866025, 0.5)
+])
+# Verificato"""
 
-"""# Caso B22121 su v5
+"""# Caso B22121 su tutti i vertici
 P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
              Vertex("v3", 0, 1), Vertex("v4",
                                         0, -1),
@@ -112,16 +113,16 @@ P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
 ])
 # Verificato"""
 
-"""# Caso B22122 su v5
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                            0, -1),
-                Vertex("v5", 0.707107, -0.707107), Vertex(
-                    "v6", -0.866025, -0.5), Vertex("v7", 0.866025, -0.5), Vertex("v8", -0.5, -0.866025)
-                ])
-    # Verificato"""
+"""# Caso B22122 su tutti i vertici
+P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+             Vertex("v3", 0, 1), Vertex("v4",
+                                        0, -1),
+             Vertex("v5", 0.707107, -0.707107), Vertex(
+    "v6", -0.866025, -0.5), Vertex("v7", 0.866025, -0.5), Vertex("v8", -0.5, -0.866025)
+])
+# Verificato"""
 
-"""# Caso B222 su v7
+"""# Caso B222 su tutti i vertici
 P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
              Vertex("v3", -0.707107, 0.707107), Vertex("v4",
                                                        0, -1),
@@ -130,13 +131,13 @@ P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
 ])
 # Verificato"""
 
-"""# Caso C1 su v4
-        P = Polygon([Vertex("v1", -0.866025, 0.5),
-                Vertex("v2", 0.866025, 0.5), Vertex("v3", -0.707107, 0.707107),
-                Vertex("v4", 0.707107, 0.707107), Vertex("v5", 0, 1)])
-    # Verificato"""
+"""# Caso C1 su tutti i vertici
+P = Polygon([Vertex("v1", -0.866025, 0.5),
+             Vertex("v2", 0.866025, 0.5), Vertex("v3", -0.707107, 0.707107),
+             Vertex("v4", 0.707107, 0.707107), Vertex("v5", 0, 1)])
+# Verificato"""
 
-"""# Caso C211 su v6
+"""# Caso C211 su tutti i vertici
 P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
              Vertex("v3", -0.707107, 0.707107), Vertex("v4",
                                                        0, -1),
@@ -145,7 +146,7 @@ P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
              Vertex("v7", 0.5, -0.866025)])
 # Verificato"""
 
-"""# Caso C212 su v6
+"""# Caso C212 su tutti i vertici
 P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
              Vertex("v3", -0.707107, 0.707107), Vertex("v4",
                                                        0, -1),
@@ -154,7 +155,7 @@ P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
              Vertex("v7", -0.5, -0.866025)])
 # Verificato"""
 
-"""# Caso C22 su v8
+"""# Caso C22 su v8  RISOLTO MANUALMENTE CONSIDERANDO C22
 P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
              Vertex("v3", 0.707107, 0.707107), Vertex("v4",
                                                       0.707107, -0.707107),
@@ -165,14 +166,29 @@ P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
 # Verificato"""
 
 
-def print_vertices():
-    for vertex in P.vertices:
+def generate_random_polygon(number_vertices: int) -> Polygon:
+    vertices = []
+    for i in range(1, number_vertices + 1):
+        # Genera coordinate casuali tra -1 e 1
+        x = random.uniform(-1, 1)
+        y = math.sqrt(1-x**2) * random.choice([1, -1])
+        vertices.append(Vertex(f"v{i}", x, y))
+
+    return Polygon(vertices)
+
+
+P = generate_random_polygon(15)
+
+
+def print_vertices(Pol: Polygon) -> None:
+    """Stampa nome e coordinate dei vertici del poligono."""
+    for vertex in Pol.vertices:
         print(f"{vertex.name}: ({vertex.x}, {vertex.y})")
     # print(f"{P.get_v_i(1).name}: ({P.get_v_i(1).x}, {P.get_v_i(1).y})")
 
 
 print("Hai creato la seguente curva poligonale:")
-print_vertices()
+print_vertices(P)
 
 n = len(P.vertices)
 
@@ -235,11 +251,8 @@ else:
         print("La poligonale sarà sinistrorsa.")
         # Ciclo sui vertici da 4 a n
         curr_idx = 4
-        while curr_idx <= n + 2:
-            # Se elimino il vertice 4 curr_idx potrebbe diminuire
-            # ma devo partire dal 4
-            if curr_idx <= 3:
-                curr_idx = 4
+        while curr_idx <= len(P_transformed.vertices)+2:
+
             print(f"Sto processando il vertice v{curr_idx}")
 
             # Caso in cui i è dispari
@@ -255,6 +268,10 @@ else:
 
                         P_transformed.eliminate_vertex(curr_idx-1)
                         P_transformed.save_state()
+
+                        curr_idx -= 1
+                        continue
+
                     # Caso A2
                     else:
                         print("Caso A2")
@@ -262,6 +279,7 @@ else:
                         if P_transformed.is_clockwise(
                                 [P_transformed.get_v(curr_idx),
                                  P_transformed.get_v(curr_idx+1),
+                                 # and not (curr_idx+1) % len(P_transformed.vertices) == 2:
                                  P_transformed.get_v(2)]):
                             print("Caso A21")
                             # Caso A211
@@ -275,6 +293,9 @@ else:
 
                                 P_transformed.eliminate_vertex(curr_idx-1)
                                 P_transformed.save_state()
+
+                                curr_idx -= 1
+                                continue
 
                             # Caso A212
                             else:
@@ -291,6 +312,9 @@ else:
 
                                 P_transformed.eliminate_vertex(curr_idx-1)
                                 P_transformed.save_state()
+
+                                curr_idx -= 1
+                                continue
 
                         # Caso A22
                         if P_transformed.is_clockwise(
@@ -359,6 +383,9 @@ else:
                             P_transformed.eliminate_vertex(curr_idx-2)
                             P_transformed.save_state()
 
+                            curr_idx -= 1
+                            continue
+
                         # Caso A23 (j<1<2<j+1)
                         else:
                             print("Caso A23")
@@ -381,6 +408,8 @@ else:
                                 P_transformed.weak_translation_clockwise(
                                     curr_idx, angle)
                                 P_transformed.save_state()
+
+                                continue
 
                             # Caso A232
                             else:
@@ -406,6 +435,8 @@ else:
 
                                     P_transformed.eliminate_vertex(curr_idx)
                                     P_transformed.save_state()
+
+                                    continue
 
                                 # Caso A2322
                                 else:
@@ -433,6 +464,9 @@ else:
 
                                     P_transformed.eliminate_vertex(curr_idx-1)
                                     P_transformed.save_state()
+
+                                    curr_idx -= 2
+                                    continue
 
                 # Caso B
                 else:
@@ -470,6 +504,9 @@ else:
                             P_transformed.eliminate_vertex(curr_idx-1)
                             P_transformed.save_state()
 
+                            curr_idx -= 1
+                            continue
+
                         # Caso B22
                         else:
                             print("Caso B22")
@@ -482,7 +519,7 @@ else:
                                 print("Caso B221")
                                 # Caso B2211
                                 if P_transformed.is_clockwise([P_transformed.get_v(curr_idx),
-                                                               P_transformed.get_v(curr_idx+2), P_transformed.get_v(2)]):
+                                                               P_transformed.get_v(curr_idx+2), P_transformed.get_v(2)]) and not (curr_idx + 2) % len(P_transformed.vertices) == 2:
                                     print("Caso B2211")
                                     if not P_transformed.is_clockwise([P_transformed.get_v(curr_idx-2),
                                                                        P_transformed.get_v(curr_idx), P_transformed.get_v(2)]):
@@ -499,6 +536,7 @@ else:
                                                                            P_transformed.get_v(curr_idx), P_transformed.get_v(2)]):
                                             raise ValueError(
                                                 "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+                                        continue
 
                                 # Caso B2212
                                 else:
@@ -525,6 +563,9 @@ else:
                                         P_transformed.eliminate_vertex(
                                             curr_idx)
                                         P_transformed.save_state()
+
+                                        curr_idx -= 1
+                                        continue
 
                                     # Caso B22122
                                     else:
@@ -561,6 +602,9 @@ else:
                                         P_transformed.eliminate_vertex(
                                             curr_idx-1)
                                         P_transformed.save_state()
+
+                                        curr_idx -= 1
+                                        continue
 
                             # caso B222
                             else:
@@ -601,6 +645,9 @@ else:
                                     curr_idx-1)
                                 P_transformed.save_state()
 
+                                curr_idx -= 1
+                                continue
+
             # ==========================================
             # INIZIO DEL BLOCCO PARI (SPECCHIO)
             # ==========================================
@@ -616,6 +663,9 @@ else:
 
                         P_transformed.eliminate_vertex(curr_idx-1)
                         P_transformed.save_state()
+
+                        curr_idx -= 1
+                        continue
 
                     # Caso C2
                     else:
@@ -640,6 +690,9 @@ else:
                                 P_transformed.eliminate_vertex(curr_idx-1)
                                 P_transformed.save_state()
 
+                                curr_idx -= 1
+                                continue
+
                             # Caso C212
                             else:
                                 print("Caso C212")
@@ -655,6 +708,9 @@ else:
 
                                 P_transformed.eliminate_vertex(curr_idx-1)
                                 P_transformed.save_state()
+
+                                curr_idx -= 1
+                                continue
 
                         # Caso C22
                         if P_transformed.is_clockwise(
@@ -705,7 +761,10 @@ else:
                                         curr_idx-4).angle +
                                     P_transformed.get_v(
                                         curr_idx).angle) / 2
-
+                                if (curr_idx-4) == 2:
+                                    angle_3 = (2 * math.pi +
+                                               P_transformed.get_v(
+                                                   curr_idx).angle) / 2
                                 P_transformed.weak_translation_clockwise(
                                     curr_idx-1, angle_3)
                                 P_transformed.save_state()
@@ -722,6 +781,9 @@ else:
 
                             P_transformed.eliminate_vertex(curr_idx-2)
                             P_transformed.save_state()
+
+                            curr_idx -= 1
+                            continue
 
                         # Caso C23 (j<2<1<j+1)
                         else:
@@ -745,6 +807,8 @@ else:
                                 P_transformed.weak_translation_clockwise(
                                     curr_idx, angle)
                                 P_transformed.save_state()
+
+                                continue
 
                             # Caso C232
                             else:
@@ -770,6 +834,8 @@ else:
 
                                     P_transformed.eliminate_vertex(curr_idx)
                                     P_transformed.save_state()
+
+                                    continue
                                 # Caso C2322
                                 else:
                                     print("Caso c2322")
@@ -796,6 +862,9 @@ else:
 
                                     P_transformed.eliminate_vertex(curr_idx-1)
                                     P_transformed.save_state()
+
+                                    curr_idx -= 2
+                                    continue
 
                 # Caso D
                 else:
@@ -833,6 +902,9 @@ else:
                             P_transformed.eliminate_vertex(curr_idx-1)
                             P_transformed.save_state()
 
+                            curr_idx -= 1
+                            continue
+
                         # Caso D22
                         else:
                             print("Caso D22")
@@ -856,6 +928,8 @@ else:
                                                                            P_transformed.get_v(curr_idx), P_transformed.get_v(2)]):
                                             raise ValueError(
                                                 "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+                                    curr_idx += 1
+                                    continue
 
                                 # Caso D2212
                                 else:
@@ -882,6 +956,8 @@ else:
                                         P_transformed.eliminate_vertex(
                                             curr_idx)
                                         P_transformed.save_state()
+
+                                        continue
 
                                     # Caso D22122
                                     else:
@@ -918,6 +994,9 @@ else:
                                         P_transformed.eliminate_vertex(
                                             curr_idx-1)
                                         P_transformed.save_state()
+
+                                        curr_idx -= 1
+                                        continue
 
                             # caso D222
                             else:
@@ -957,7 +1036,11 @@ else:
                                 P_transformed.eliminate_vertex(
                                     curr_idx-1)
                                 P_transformed.save_state()
-            curr_idx = 4
+
+                                curr_idx -= 1
+                                continue
+P_transformed.get_equispaced_vertices()
+P_transformed.save_state()
 
 # FINE DELL'ALGORITMO - INIZIO GRAFICA
 

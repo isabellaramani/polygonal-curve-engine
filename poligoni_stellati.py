@@ -107,14 +107,27 @@ class Polygon:
         vec2_x = v_ip1.x - v_i.x
         vec2_y = v_ip1.y - v_i.y
 
-        # Calcolo prodotto scalare.
+        # Calcolo prodotto scalare e norme.
         dot_product = vec1_x * vec2_x + vec1_y * vec2_y
         norm_1 = math.sqrt(vec1_x**2 + vec1_y**2)
         norm_2 = math.sqrt(vec2_x**2 + vec2_y**2)
 
-        abs_value_rot_vi = math.acos(dot_product / (norm_1 * norm_2))
+        # SALVAVITA 1: Se due vertici sono identici, la norma è 0.
+        # Evito che il programma crashi per "division by zero".
+        if norm_1 == 0.0 or norm_2 == 0.0:
+            return 0.0
+
+        # Calcolo il valore del coseno
+        cos_val = dot_product / (norm_1 * norm_2)
+
+        # Se il computer ha calcolato -1.000000000002, questa riga lo riporta a -1.0.
+        cos_val = max(-1.0, min(1.0, cos_val))
+
+        abs_value_rot_vi = math.acos(cos_val)
+
         det = vec1_x * vec2_y - vec1_y * vec2_x
         rot_vi = math.copysign(abs_value_rot_vi, det)
+
         return rot_vi
 
     def get_winding_number(self) -> int:
