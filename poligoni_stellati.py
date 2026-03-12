@@ -203,6 +203,10 @@ class Polygon:
         if n < 3:
             return False  # Almeno 3 punti per definire una circonferenza
 
+        # Caso circonferenza unitaria per non avere errori con vertici vicin
+        if all(is_near(v.x**2 + v.y**2, 1.0) for v in self.vertices):
+            return True
+
         # Calcola circocentro e raggio usando i primi 3 vertici
         V1, V2, V3 = self.vertices[0], self.vertices[1], self.vertices[2]
 
@@ -1163,6 +1167,17 @@ class Polygon:
                             # Caso C2
                             else:
                                 print("Caso C2")
+                                # Caso limite j-2 = 2 e n sta sotto, la poligonale diventerà destrorsa
+                                if curr_idx - 2 == 2 and self.is_right_turn(1):
+                                    print_vertices(self)
+                                    self.move_to_midpoint(curr_idx-2)
+                                    self.eliminate_vertex(curr_idx-2)
+                                    print_vertices(self)
+                                    break
+                                    self.weak_translation_clockwise(
+                                        2, 0)
+                                    curr_idx -= 1
+                                    continue
                                 # Caso C21
                                 if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+1), self.get_v(1)]):
                                     print("Caso C21")
@@ -1251,21 +1266,13 @@ class Polygon:
                                     if self.is_clockwise([self.get_v(curr_idx), self.get_v(2), self.get_v(curr_idx+2)]):
                                         print("Caso C231")
                                         self.get_equispaced_vertices()
-                                        # Caso limite j-2 = 2, la poligonale diventerà destrorsa
-                                        if curr_idx - 2 == 2:
-                                            self.move_to_midpoint(curr_idx-2)
-                                            self.eliminate_vertex(curr_idx-2)
-                                            self.weak_translation_clockwise(
-                                                2, 0)
-                                            curr_idx -= 1
-                                            continue
-                                        else:
-                                            angle = (self.get_next_clockwise(
-                                                # self.get_v(2).angle) / 2
-                                                2).angle + 2 * math.pi) / 2
-                                            self.weak_translation_clockwise(
-                                                curr_idx, angle)
-                                            continue
+
+                                        angle = (self.get_next_clockwise(
+                                            # self.get_v(2).angle) / 2
+                                            2).angle + 2 * math.pi) / 2
+                                        self.weak_translation_clockwise(
+                                            curr_idx, angle)
+                                        continue
 
                                     # Caso C232
                                     else:
@@ -1471,3 +1478,10 @@ def generate_random_polygon(number_vertices: int) -> Polygon:
         vertices.append(Vertex(f"v{i}", x, y))
 
     return Polygon(vertices)
+
+
+def print_vertices(Pol: Polygon) -> None:
+    """Stampa nome e coordinate dei vertici del poligono."""
+    for vertex in Pol.vertices:
+        print(f"{vertex.name}: ({vertex.x}, {vertex.y})")
+    # print(f"{P.get_v_i(1).name}: ({P.get_v_i(1).x}, {P.get_v_i(1).y})")

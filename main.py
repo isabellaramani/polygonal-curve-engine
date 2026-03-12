@@ -1,7 +1,7 @@
 import math
 import copy
 import random
-from poligoni_stellati import Vertex, Polygon, is_near, generate_random_polygon
+from poligoni_stellati import Vertex, Polygon, is_near, generate_random_polygon, print_vertices
 from visualizer import PolygonVisualizer
 
 
@@ -28,13 +28,6 @@ while True:
 P = generate_random_polygon(10)
 while not P.is_left_turn(2):
     P = generate_random_polygon(10)
-
-
-def print_vertices(Pol: Polygon) -> None:
-    """Stampa nome e coordinate dei vertici del poligono."""
-    for vertex in Pol.vertices:
-        print(f"{vertex.name}: ({vertex.x}, {vertex.y})")
-    # print(f"{P.get_v_i(1).name}: ({P.get_v_i(1).x}, {P.get_v_i(1).y})")
 
 
 print("Hai creato la seguente curva poligonale:")
