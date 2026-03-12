@@ -1,5 +1,5 @@
 import math
-from poligoni_stellati import Vertex, Polygon, get_determinant
+from poligoni_stellati import Vertex, Polygon, get_determinant, generate_random_polygon, get_angle_bisector
 
 TOLERANCE = 0.0005
 
@@ -32,6 +32,39 @@ def test_get_determinant():
     det = get_determinant(V1, V2, V3, V4)
     expected = (V1.x - V2.x) * (V3.y - V4.y) - (V1.y - V2.y) * (V3.x - V4.x)
     assert is_near(det, expected)
+
+
+def test_get_angle_bisector():
+
+    ang1 = math.radians(30)
+    ang2 = math.radians(50)
+    expected = math.radians(40)
+    assert is_near(get_angle_bisector(ang1, ang2),
+                   expected)
+
+    ang1 = math.radians(350)
+    ang2 = math.radians(10)
+    expected = get_angle_bisector(ang1, ang2)
+    assert is_near(expected, 0.0) or is_near(
+        expected, 2 * math.pi)
+
+    ang1 = math.radians(350)
+    ang2 = math.radians(0)
+    expected = math.radians(355)
+    assert is_near(get_angle_bisector(ang1, ang2),
+                   expected)
+
+    ang1 = math.radians(10)
+    ang2 = math.radians(350)
+    expected = get_angle_bisector(ang1, ang2)
+    assert is_near(expected, 0.0) or is_near(
+        expected, 2 * math.pi)
+
+    ang1 = math.radians(-10)
+    ang2 = math.radians(10)
+    expected = get_angle_bisector(ang1, ang2)
+    assert is_near(expected, 0.0) or is_near(
+        expected, 2 * math.pi)
 
 
 def test_is_empty():
@@ -593,3 +626,213 @@ def test_get_next_counterclockwise():
         ]
     )
     assert P.get_next_counterclockwise(1).name == "V2"
+
+
+def test_reduce_polygon():
+    # Caso A1
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
+                 Vertex("v3", 0, 1), Vertex("v4", 0.707107, -0.707107),
+                 Vertex("v5", -0.707107, -0.707107), Vertex("v6", 0, -1)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso A211 su tutti i vertici
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                          0.707107, -0.707107),
+                Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
+                Vertex("v7", -0.866025, -0.5), Vertex("v8", 0, 1)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso A212 su tutti i vertici
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                          0.707107, -0.707107),
+                Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
+                Vertex("v7", -0.866025, -0.5), Vertex("v8", 0.866025, 0.5)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso A22 su tutti i vertici
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                          0.707107, -0.707107),
+                Vertex("v5", 0.707107, 0.707107), Vertex(
+        "v6", -0.707107, -0.707107),
+        Vertex("v7", 0, 1), Vertex("v8", 0, -1)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso A231 su tutti i vertici
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1), Vertex("v4",
+                                           0, -1),
+                Vertex("v5", -0.707107, -0.707107), Vertex(
+        "v6", 0.707107, -0.707107),
+        Vertex("v7", -0.707107, 0.707107)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso A2321 su tutti i vertici
+    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1), Vertex("v4",
+                                           0, -1),
+                Vertex("v5", -0.707107, -0.707107), Vertex(
+        "v6", 0.707107, -0.707107),
+        Vertex("v7", -0.866025, -0.5), Vertex(
+        "v8", 0.866025, 0.5)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso A2322 su tutti i vertici
+    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1), Vertex("v4",
+                                           0.707107, -0.707107),
+                Vertex("v5", -0.707107, -0.707107), Vertex(
+        "v6", 0.866025, -0.5),
+        Vertex("v7", -0.866025, -0.5), Vertex(
+        "v8", 0, -1)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso B21 su tutti i vertici
+    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1), Vertex("v4",
+                                           0, -1),
+                Vertex("v5", 0.707107, -0.707107), Vertex(
+        "v6", 0.5, -0.866025)
+    ])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso B2211 su tutti i vertici
+    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1), Vertex("v4",
+                                           0, -1),
+                Vertex("v5", 0.707107, -0.707107), Vertex(
+        "v6", -0.5, -0.866025), Vertex("v7", 0.866025, 0.5)
+    ])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso B22121 su tutti i vertici
+    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1), Vertex("v4",
+                                           0, -1),
+                Vertex("v5", 0.707107, -0.707107), Vertex(
+        "v6", -0.5, -0.866025), Vertex("v7", 0.866025, -0.5), Vertex("v8", -0.5, 0.866025)
+    ])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso B22122 su tutti i vertici
+    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1), Vertex("v4",
+                                           0, -1),
+                Vertex("v5", 0.707107, -0.707107), Vertex(
+        "v6", -0.866025, -0.5), Vertex("v7", 0.866025, -0.5), Vertex("v8", -0.5, -0.866025)
+    ])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso B222 su tutti i vertici
+    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
+                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                          0, -1),
+                Vertex("v5", 0, 1), Vertex(
+        "v6", -0.866025, -0.5), Vertex("v7", 0.866025, -0.5), Vertex("v8", 0.5, 0.866025)
+    ])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso C1 su tutti i vertici
+    P = Polygon([Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 0.866025, 0.5), Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0.707107, 0.707107), Vertex("v5", 0, 1)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso C211 su tutti i vertici
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                          0, -1),
+                Vertex("v5", 0.707107, 0.707107), Vertex(
+                    "v6", 0.707107, -0.707107),
+                Vertex("v7", 0.5, -0.866025)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso C212 su tutti i vertici
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
+                                                          0, -1),
+                Vertex("v5", 0.707107, 0.707107), Vertex(
+                    "v6", 0.707107, -0.707107),
+                Vertex("v7", -0.5, -0.866025)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    # Caso C22 su v8  RISOLTO MANUALMENTE CONSIDERANDO C22
+    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+                Vertex("v3", 0.707107, 0.707107), Vertex("v4",
+                                                         0.707107, -0.707107),
+                Vertex("v5", -0.707107, 0.707107), Vertex(
+                    "v6", -0.707107, -0.707107),
+                Vertex("v7", 0.5, 0.866025),
+                Vertex("v8", 0, -1), Vertex("v9", 0, 1)])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+    P = Polygon(
+        [
+            Vertex("v1", 0.4151333452873365, -0.9097605759926867),
+            Vertex("v2", 0.4660853714569506, 0.8847397507255094),
+            Vertex("v3", -0.04901314988810457, -0.9987981333272736),
+            Vertex("v4", -0.33200881737487076, 0.9432762825309134),
+            Vertex("v5", -0.5179906796570459, -0.8553862611641783),
+            Vertex("v6", 0.5447833116815444, -0.8385768559370628),
+            Vertex("v7", -0.9427412284073673, 0.3335250759102951),
+            Vertex("v8", 0.21846212384139263, 0.9758454285626941),
+            Vertex("v9", 0.04214390550647695, -0.9991115509434676),
+            Vertex("v10", 0.11180311253381658, 0.9937303779334467),
+        ]
+    )
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+
+    # Risolto manualmente considerando C2322
+    P = Polygon([
+        Vertex("v1", 0.9822979314554909, -0.1873253155829816),
+        Vertex("v2", -0.8676696270010948, 0.4971412459048042),
+        Vertex("v3", -0.4846368510846364, -0.8747154523448),
+        Vertex("v4", -0.29340126152361345, -0.955989382648339),
+        Vertex("v5", -0.3602401598579339, -0.9328595967376496),
+        Vertex("v6", 0.2503476116287866, -0.9681560170508482),
+        Vertex("v7", -0.7014911941776061, 0.7126781212379655),
+        Vertex("v8", 0.17165646568010495, -0.9851568696356002),
+        Vertex("v9", 0.7087614959245248, 0.7054481851240599),
+        Vertex("v10", 0.9340723516373792, -0.35708380235823656)
+    ])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+
+    # Risolto con casi limite C212 e D211
+    P = Polygon([
+        Vertex("v1", -0.027064249416564268, 0.99963369611249),
+        Vertex("v2", -0.47046008597247124, 0.8824212755293103),
+        Vertex("v3", 0.043156452696938574, -0.999068326287355),
+        Vertex("v4", 0.5789189989831471, 0.8153850578814594),
+        Vertex("v5", -0.6194249797590352, 0.7850558543508346),
+        Vertex("v6", -0.6988412987788333, 0.7152767570116573),
+        Vertex("v7", -0.9469475854993759, -0.3213880369847364),
+        Vertex("v8", 0.8233008094392888, 0.5676053005184253),
+        Vertex("v9", 0.32845338780422884, -0.9445201808537099),
+        Vertex("v10", -0.09221411342817709, -0.9957392014401438)
+    ])
+    P.reduce_polygon()
+    assert P.is_polygon_reduced()
+
+    # Caso in cui inizia come sinistrorsa e diventa desrtrorsa
+    # Ancora da ridurre
+    P = Polygon([
+        Vertex("v1", 0.3437300059454709, 0.9390685188061234),
+        Vertex("v2", -0.1664430775964021, 0.9860510645601668),
+        Vertex("v3", 0.9364502081098824, 0.3508005241315324),
+        Vertex("v4", 0.40515783346200185, -0.9142467555230245),
+        Vertex("v5", 0.37018462362294713, -0.9289582038138944),
+        Vertex("v6", -0.5671139068187114, -0.8236393729617459),
+        Vertex("v7", 0.2411510433589672, 0.9704875961530274),
+        Vertex("v8", 0.20813455918082324, -0.9781002020624494),
+        Vertex("v9", -0.8931146784951343, 0.44982904647936306),
+        Vertex("v10", -0.04240571295747442, 0.9991004731800343)
+    ])
+    # Quando l'algoritmo sarà finito
+    """for i in range(1, 100):
+        P = generate_random_polygon(10)
+        P.reduce_polygon()
+        assert P.is_polygon_reduced()"""

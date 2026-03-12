@@ -1,5 +1,6 @@
 import math
 import copy
+import random
 
 TOLERANCE = 0.0005
 
@@ -41,6 +42,29 @@ def get_determinant(V1: Vertex, V2: Vertex, V3: Vertex, V4: Vertex) -> float:
     return (V1.x - V2.x) * (V3.y - V4.y) - (V1.y - V2.y) * (V3.x - V4.x)
 
 
+def get_angle_bisector(angle1: float, angle2: float) -> float:
+    """
+    Calcola l'angolo medio tra due angoli,
+    risolvendo il problema del salto tra 0 e 2*pi.
+    """
+
+    x = math.cos(angle1) + math.cos(angle2)
+    y = math.sin(angle1) + math.sin(angle2)
+
+    # Se i due angoli sono esattamente opposti atan2 darebbe errore.
+    if is_near(x, 0.0) and is_near(y, 0.0):
+        # In caso di angoli opposti, prendiamo uno dei due percorsi a 90 gradi
+        return (angle1 + math.pi) % (2 * math.pi)
+
+    mid_angle = math.atan2(y, x)
+
+    # Angolo fra 0 e 2pi
+    if mid_angle < 0:
+        mid_angle += 2 * math.pi
+
+    return mid_angle
+
+
 origine = Vertex("Origine", 0, 0)
 
 
@@ -68,6 +92,7 @@ class Polygon:
     def add_vertex(self, V: Vertex) -> None:
         """Aggiunge un vertice al poligono."""
         self.vertices.append(V)
+        self.save_state()
 
     def get_v(self, i: int) -> Vertex:
         """Restituisce il vertice v_i, con i che parte da 1."""
@@ -89,11 +114,12 @@ class Polygon:
         # Controllo se il punto è interno al segmento
         is_between_x = min(v_im1.x, v_ip1.x) <= v_i.x <= max(v_im1.x, v_ip1.x)
         is_between_y = min(v_im1.y, v_ip1.y) <= v_i.y <= max(v_im1.y, v_ip1.y)
-
+        print(f"Ho eliminato il vertice {self.get_v(i).name}")
         if is_near(det, 0.0) and is_between_x and is_between_y:
             self.vertices.remove(v_i)
         else:
             raise ValueError("Il vertice non appartiene al segmento.")
+        self.save_state()
 
     def get_rotation_angle(self, i: int) -> float:
         """Calcola l'angolo di rotazione di v_i."""
@@ -168,6 +194,7 @@ class Polygon:
         # Sposta ogni vertice in modo che il centro di massa sia all'origine
         for v in self.vertices:
             v.change_coordinates(v.x - center_x, v.y - center_y)
+        self.save_state()
 
     def is_circle(self) -> bool:
         """Verifica se i vertici del poligono appartengono
@@ -246,6 +273,7 @@ class Polygon:
                 v.x / math.sqrt(v.x**2 + v.y**2), v.y /
                 math.sqrt(v.x**2 + v.y**2)
             )
+        self.save_state()
 
     def is_clockwise(self, list_vertices: list[Vertex]) -> bool:
         """Verifica se i vertici sulla circonferenza unitaria
@@ -410,6 +438,7 @@ class Polygon:
             # Sottraiamo per andare in senso orario
             new_angle = (base_angle - (2 * math.pi * j / n)) % (2 * math.pi)
             sorted_vertices[j].change_angle(new_angle)
+        self.save_state()
 
     def rotate_vertex(self, i: int, delta_angle: float) -> None:
         """Ruota il vertice i rispetto all'origine spostandolo di
@@ -418,6 +447,7 @@ class Polygon:
         # Calcoliamo il nuovo angolo sommandolo a quello attuale
         new_angle = (self.get_v(i).angle + delta_angle) % (2 * math.pi)
         self.get_v(i).change_angle(new_angle)
+        self.save_state()
 
     def is_translation_regular(self, i: int, U: Vertex) -> bool:
         """Verifica se la traslazione del vertice
@@ -484,10 +514,12 @@ class Polygon:
             )
         else:
             raise ValueError("Non si può fare con trasformazioni regolari.")
+        self.save_state()
 
     def move_and_eliminate(self, i: int) -> None:
         self.move_to_midpoint(i)
         self.eliminate_vertex(i)
+        print(f"Ho eliminato il vertice {self.get_v(i).name}")
 
     def weak_translation_clockwise(self, i: int, target_angle: float) -> None:
         """Trasla il vertice i-esimo lungo la circonferenza unitaria
@@ -603,6 +635,7 @@ class Polygon:
             v_x = math.cos(angle_v)
             v_y = math.sin(angle_v)
             v.change_coordinates(v_x, v_y)
+            self.save_state()
 
     def weak_translation_counterclockwise(self, i: int, target_angle: float) -> None:
         """Trasla il vertice i-esimo lungo la circonferenza unitaria
@@ -718,6 +751,7 @@ class Polygon:
             v_x = math.cos(angle_v)
             v_y = math.sin(angle_v)
             v.change_coordinates(v_x, v_y)
+            self.save_state()
         print([v.angle for v in self.vertices])
 
     def get_next_clockwise(self, i: int) -> Vertex:
@@ -747,3 +781,693 @@ class Polygon:
 
         # Ritorno il vertice trovato
         return sorted_vertices[next_idx]
+
+    def reduce_polygon(self):
+        """Esegue l'algoritmo di riduzione di Mehlhorn-Yap sul poligono."""
+        n = len(self.vertices)
+
+        if n == 1:
+            print("Il poligono stellato è un punto.")
+        elif n == 2:
+            print("Il poligono stellato è un segmento.")
+        elif n == 3:
+            print("Il poligono stellato è un triangolo.")
+        else:
+            if not self.is_circle():
+                raise ValueError(
+                    "La curva poligonale non è inscritta in un cerchio.")
+
+            # Porto la curva poliginale su circonferenza di raggio 1
+            # Controlla se c'è ALMENO UN vertice fuori dalla circonferenza unitaria
+            if any(not is_near(math.hypot(v.x, v.y), 1.0) for v in self.vertices):
+                self.get_unitary_radius()
+
+            # Elimino i vertici appartenenti ai lati
+            for i in range(3, n + 1):
+                if is_near(self.get_rotation_angle(i), 0):
+                    self.eliminate_vertex(i)
+                    print(
+                        f"Eliminato vertice {i} perché appartiene già ad un lato.")
+
+            # Porto il vertice v1 in (-1,0)
+            if not is_near(self.get_v(1).x, -1) or not is_near(self.get_v(1).y, 0):
+                if self.get_v(1).angle < math.pi:
+                    self.weak_translation_counterclockwise(1, math.pi)
+                else:
+                    self.weak_translation_clockwise(1, math.pi)
+            else:
+                print("Vertice v1 già in (-1,0).")
+
+            # Porto il vertice v2 in (1,0)
+            if not is_near(self.get_v(2).x, 1) or not is_near(self.get_v(2).y, 0):
+                if self.get_v(2).angle < math.pi:
+                    self.weak_translation_clockwise(2, 0)
+                else:
+                    self.weak_translation_counterclockwise(2, 0)
+            else:
+                print("Vertice v2 già in (1,0).")
+                # Ciclo sui vertici da 4 a n
+            curr_idx = 4
+            while curr_idx <= len(self.vertices):
+                # Caso poligonale destrorsa
+                if self.is_right_turn(2):
+                    break
+                # Caso poligonale sinistrorsa
+                if self.is_left_turn(2):
+                    # Gestione poligono a farfalla
+                    # (altrimenti l'algoritmo non gestisce il processo per 1)
+                    if len(self.vertices) == 4:
+                        if self.is_left_turn(3) is True and self.is_right_turn(4) is True:
+                            break
+                        if self.is_right_turn(3) is True and self.is_right_turn(4) is True:
+                            break
+
+                    print(
+                        f"Sto processando il vertice {self.get_v(curr_idx).name} con indice {curr_idx}")
+
+                    # Caso in cui i è dispari
+                    if curr_idx % 2 == 1:
+                        # Caso A
+                        if self.is_right_turn(curr_idx-1):
+                            print("Caso A")
+                            # Caso A1
+                            if self.is_left_turn(curr_idx):
+                                print("Caso A1")
+                                self.move_to_midpoint(curr_idx-1)
+                                self.eliminate_vertex(curr_idx-1)
+                                curr_idx -= 1
+                                continue
+
+                            # Caso A2
+                            else:
+                                print("Caso A2")
+                                # Caso A21
+                                if self.is_clockwise(
+                                        [self.get_v(curr_idx),
+                                         self.get_v(curr_idx+1),
+                                         self.get_v(2)]):
+                                    print("Caso A21")
+                                    # Caso A211
+                                    if self.is_clockwise(
+                                            [self.get_v(curr_idx),
+                                             self.get_v(curr_idx+1),
+                                             self.get_v(curr_idx-2)]):
+                                        print("Caso A211")
+                                        self.move_to_midpoint(curr_idx-1)
+                                        self.eliminate_vertex(curr_idx-1)
+                                        curr_idx -= 1
+                                        continue
+
+                                    # Caso A212
+                                    else:
+                                        print("Caso A212")
+                                        angle = self.get_v(
+                                            curr_idx+1).angle / 2
+                                        self.weak_translation_clockwise(
+                                            curr_idx-2, angle)
+                                        self.move_to_midpoint(curr_idx-1)
+                                        self.eliminate_vertex(curr_idx-1)
+                                        curr_idx -= 1
+                                        continue
+
+                                # Caso A22
+                                if self.is_clockwise(
+                                        [self.get_v(curr_idx),
+                                         self.get_v(2),
+                                         self.get_v(curr_idx+1),
+                                         self.get_v(1)]):
+                                    print("Caso A22")
+                                    # Primo passaggio
+                                    vertices_to_check = [
+                                        self.get_v(curr_idx-4),
+                                        self.get_v(curr_idx),
+                                        self.get_v(curr_idx-2)]
+                                    if not self.is_clockwise(vertices_to_check):
+                                        angle_1 = (
+                                            math.pi + self.get_v(curr_idx).angle) / 2
+                                        angle_2 = self.get_v(
+                                            curr_idx).angle / 2
+                                        self.weak_translation_clockwise(
+                                            curr_idx-2, angle_2)
+                                        self.weak_translation_counterclockwise(
+                                            curr_idx-4, angle_1)
+
+                                    vertices_check = [
+                                        self.get_v(curr_idx-4),
+                                        self.get_v(curr_idx),
+                                        self.get_v(curr_idx-2)]
+                                    if not self.is_clockwise(vertices_check) is True:
+                                        raise ValueError(
+                                            "Primo passaggio non riuscito")
+
+                                    # Secondo passaggio
+                                    vertices_to_check_2 = [
+                                        self.get_v(curr_idx-4),
+                                        self.get_v(curr_idx-1),
+                                        self.get_v(curr_idx)]
+                                    if not self.is_clockwise(vertices_to_check_2):
+                                        angle_3 = (self.get_v(
+                                            curr_idx-4).angle + self.get_v(curr_idx).angle) / 2
+                                        self.weak_translation_clockwise(
+                                            curr_idx-1, angle_3)
+
+                                    if not self.is_clockwise(
+                                            [self.get_v(curr_idx-4),
+                                             self.get_v(curr_idx-1),
+                                             self.get_v(curr_idx)]) is True:
+                                        raise ValueError(
+                                            "Secondo passaggio non riuscito")
+
+                                    self.move_to_midpoint(curr_idx-2)
+                                    self.eliminate_vertex(curr_idx-2)
+                                    curr_idx -= 1
+                                    continue
+
+                                # Caso A23 (j<1<2<j+1)
+                                else:
+                                    print("Caso A23")
+                                    if not self.is_clockwise(
+                                            [self.get_v(curr_idx),
+                                             self.get_v(1),
+                                             self.get_v(2),
+                                             self.get_v(curr_idx+1)]):
+                                        raise ValueError(
+                                            "Controllo per caso A23 non riuscito, dovrebbe essere vero")
+
+                                    # Caso A231
+                                    if self.is_clockwise(
+                                            [self.get_v(curr_idx),
+                                             self.get_v(1),
+                                             self.get_v(curr_idx+2)]):
+                                        print("Caso A231")
+                                        angle = (self.get_next_clockwise(
+                                            1).angle + self.get_v(1).angle) / 2
+                                        self.weak_translation_clockwise(
+                                            curr_idx, angle)
+                                        continue
+
+                                    # Caso A232
+                                    else:
+                                        print("Caso A232")
+                                        if not self.is_clockwise(
+                                                [self.get_v(curr_idx),
+                                                 self.get_v(curr_idx+2),
+                                                 self.get_v(1)]):
+                                            raise ValueError(
+                                                "Controllo per caso A232 non riuscito, dovrebbe essere falso")
+
+                                        # Caso A2321
+                                        if self.is_right_turn(curr_idx+2):
+                                            self.move_to_midpoint(curr_idx+1)
+                                            print("Caso A2321")
+                                            self.eliminate_vertex(curr_idx+1)
+                                            self.move_to_midpoint(curr_idx)
+                                            self.eliminate_vertex(curr_idx)
+                                            continue
+
+                                        # Caso A2322
+                                        else:
+                                            print("Caso A2322")
+                                            angle = (self.get_v(
+                                                curr_idx-2).angle + self.get_v(1).angle) / 2
+                                            self.weak_translation_counterclockwise(
+                                                curr_idx+1, angle)
+                                            if not self.is_clockwise(
+                                                    [self.get_v(1),
+                                                     self.get_v(curr_idx+1),
+                                                     self.get_v(curr_idx-2)]):
+                                                raise ValueError(
+                                                    "Passaggio non riuscito")
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+
+                                            # Nella teoria sarebbe j ma la lista si è aggiornata con l'eliminazione di i-1
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+                                            # Nella teoria sarebbe j+1 ma la lista si è aggiornata con l'eliminazione di i-1
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+
+                                            curr_idx -= 2
+                                            continue
+
+                        # Caso B
+                        else:
+                            print("Caso B")
+                            # Caso B1
+                            if self.is_clockwise([self.get_v(curr_idx), self.get_v(2), self.get_v(curr_idx-2)]):
+                                print("Caso B1")
+                                # Non facciamo nulla
+                                curr_idx += 1
+                                continue
+                            # Caso B2
+                            else:
+                                print("Caso B2")
+                                if not self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx-1), self.get_v(2)]):
+                                    raise ValueError(
+                                        "Controllo per caso B2 non riuscito, dovrebbe essere falso")
+
+                                # Caso B21
+                                if self.is_right_turn(curr_idx):
+                                    print("Caso B21")
+                                    if not self.is_clockwise([self.get_v(2),
+                                                              self.get_v(
+                                                                  curr_idx-3),
+                                                              self.get_v(curr_idx)]):
+                                        # Traslo i-3 fra j e 2
+                                        angle = (
+                                            2 * math.pi - self.get_v(curr_idx).angle) / 2
+                                        self.weak_translation_counterclockwise(
+                                            curr_idx-3, 2 * math.pi - angle)
+
+                                    self.move_to_midpoint(curr_idx-1)
+                                    self.eliminate_vertex(curr_idx-1)
+                                    curr_idx -= 1
+                                    continue
+
+                                # Caso B22
+                                else:
+                                    print("Caso B22")
+                                    # Caso B221
+                                    if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+1), self.get_v(1)]):
+                                        print("Caso B221")
+                                        # Caso B2211
+                                        if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+2), self.get_v(2)]) and not (curr_idx + 2) % len(self.vertices) == 2:
+                                            print("Caso B2211")
+                                            if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx), self.get_v(2)]):
+                                                angle = self.get_next_counterclockwise(
+                                                    2).angle / 2
+                                                print(
+                                                    f"{self.get_next_counterclockwise(2).angle}")
+                                                self.weak_translation_counterclockwise(
+                                                    curr_idx, angle)
+                                                print(f"{self.get_v(5).angle}")
+                                                if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx), self.get_v(2)]):
+                                                    raise ValueError(
+                                                        "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+                                                continue
+
+                                        # Caso B2212
+                                        else:
+                                            print("Caso B2212")
+                                            if not self.is_clockwise([self.get_v(2), self.get_v(curr_idx+2), self.get_v(curr_idx)]):
+                                                raise ValueError(
+                                                    "Non entra in nessun caso")
+
+                                            # Caso B22121
+                                            if self.is_left_turn(curr_idx+2):
+                                                print("Caso B22121")
+                                                self.move_to_midpoint(
+                                                    curr_idx+1)
+                                                self.eliminate_vertex(
+                                                    curr_idx+1)
+                                                self.move_to_midpoint(curr_idx)
+                                                self.eliminate_vertex(curr_idx)
+                                                curr_idx -= 1
+                                                continue
+
+                                            # Caso B22122
+                                            else:
+                                                print("Caso B22122")
+                                                if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                                    # Traslo i-3 in un intorno di 2
+                                                    angle = (
+                                                        2 * math.pi - self.get_next_clockwise(2).angle) / 2
+                                                    self.weak_translation_counterclockwise(
+                                                        curr_idx-3, 2 * math.pi - angle)
+                                                if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                                    raise ValueError(
+                                                        "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+
+                                                if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(2)]):
+                                                    # Traslo j+1
+                                                    angle = (
+                                                        self.get_next_counterclockwise(2).angle) / 2
+                                                    self.weak_translation_clockwise(
+                                                        curr_idx+1, angle)
+                                                if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(2)]):
+                                                    raise ValueError(
+                                                        "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+                                                self.move_to_midpoint(
+                                                    curr_idx-1)
+                                                self.eliminate_vertex(
+                                                    curr_idx-1)
+                                                curr_idx -= 1
+                                                continue
+
+                                    # caso B222
+                                    else:
+                                        print("Caso B222")
+                                        if not self.is_clockwise([self.get_v(1), self.get_v(curr_idx+1), self.get_v(curr_idx)]):
+                                            raise ValueError(
+                                                "Non entra in nessun caso")
+                                        # Passaggio 1
+                                        if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(curr_idx)]):
+                                            angle = (
+                                                math.pi + self.get_v(curr_idx+1).angle) / 2
+                                            self.weak_translation_counterclockwise(
+                                                curr_idx-2, angle)
+                                        if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(curr_idx)]):
+                                            raise ValueError(
+                                                "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+
+                                        # Passaggio 2
+                                        if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                            angle = (
+                                                2 * math.pi + self.get_v(curr_idx).angle) / 2
+                                            self.weak_translation_counterclockwise(
+                                                curr_idx-3, angle)
+                                        if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                            raise ValueError(
+                                                "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+                                        self.move_to_midpoint(curr_idx-1)
+                                        self.eliminate_vertex(curr_idx-1)
+                                        curr_idx -= 1
+                                        continue
+
+            # ==========================================
+            # INIZIO DEL BLOCCO PARI (SPECCHIO)
+            # ==========================================
+                    elif curr_idx % 2 == 0:
+                        # Caso C (Speculare di A)
+                        if self.is_right_turn(curr_idx-1):
+                            print("Caso C")
+                            # Caso C1
+                            if self.is_left_turn(curr_idx):
+                                print("Caso C1")
+                                self.move_to_midpoint(curr_idx-1)
+                                self.eliminate_vertex(curr_idx-1)
+                                curr_idx -= 1
+                                continue
+
+                            # Caso C2
+                            else:
+                                print("Caso C2")
+                                # Caso C21
+                                if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+1), self.get_v(1)]):
+                                    print("Caso C21")
+
+                                    # Caso C211
+                                    if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+1), self.get_v(curr_idx-2)]):
+                                        print("Caso C211")
+                                        self.move_to_midpoint(curr_idx-1)
+                                        self.eliminate_vertex(curr_idx-1)
+                                        curr_idx -= 1
+                                        continue
+
+                                    # Caso C212
+                                    else:
+                                        print("Caso C212")
+                                        # Caso limite j+1 = 1
+                                        if (curr_idx + 1) % len(self.vertices) == 1:
+                                            angle = (self.get_v(
+                                                1).angle + self.get_next_clockwise(1).angle) / 2
+                                            self.weak_translation_clockwise(
+                                                curr_idx-2, angle)
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+                                            curr_idx = 4
+                                        else:
+                                            angle = (self.get_v(
+                                                curr_idx+1).angle + math.pi) / 2
+                                            self.weak_translation_clockwise(
+                                                curr_idx-2, angle)
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+                                            curr_idx -= 1
+                                        continue
+
+                                # Caso C22
+                                if self.is_clockwise([self.get_v(curr_idx), self.get_v(1), self.get_v(curr_idx+1), self.get_v(2)]):
+                                    print("Caso C22")
+                                    # Primo passaggio
+                                    vertices_to_check = [self.get_v(
+                                        curr_idx-4), self.get_v(curr_idx), self.get_v(curr_idx-2)]
+                                    if not self.is_clockwise(vertices_to_check):
+                                        angle_1 = (
+                                            2 * math.pi + self.get_v(curr_idx).angle) / 2
+                                        angle_2 = (
+                                            math.pi + self.get_v(curr_idx).angle) / 2
+                                        self.weak_translation_counterclockwise(
+                                            curr_idx-4, angle_1)
+                                        self.weak_translation_clockwise(
+                                            curr_idx-2, angle_2)
+
+                                    vertices_check = [self.get_v(
+                                        curr_idx-4), self.get_v(curr_idx), self.get_v(curr_idx-2)]
+                                    if not self.is_clockwise(vertices_check) is True:
+                                        raise ValueError(
+                                            "Primo passaggio non riuscito")
+
+                                    # Secondo passaggio
+                                    vertices_to_check_2 = [self.get_v(
+                                        curr_idx-4), self.get_v(curr_idx-1), self.get_v(curr_idx)]
+                                    if not self.is_clockwise(vertices_to_check_2):
+                                        angle_3 = (self.get_v(
+                                            curr_idx-4).angle + self.get_v(curr_idx).angle) / 2
+                                        if (curr_idx-4) == 2:
+                                            angle_3 = (
+                                                2 * math.pi + self.get_v(curr_idx).angle) / 2
+                                        self.weak_translation_clockwise(
+                                            curr_idx-1, angle_3)
+
+                                    if not self.is_clockwise([self.get_v(curr_idx-4), self.get_v(curr_idx-1), self.get_v(curr_idx)]) is True:
+                                        raise ValueError(
+                                            "Secondo passaggio non riuscito")
+
+                                    self.move_to_midpoint(curr_idx-2)
+                                    self.eliminate_vertex(curr_idx-2)
+                                    curr_idx -= 1
+                                    continue
+
+                                # Caso C23 (j<2<1<j+1)
+                                else:
+                                    print("Caso C23")
+                                    if not self.is_clockwise([self.get_v(curr_idx), self.get_v(2), self.get_v(1), self.get_v(curr_idx+1)]):
+                                        raise ValueError(
+                                            "Controllo per caso C23 non riuscito, dovrebbe essere vero")
+
+                                    # Caso C231
+                                    if self.is_clockwise([self.get_v(curr_idx), self.get_v(2), self.get_v(curr_idx+2)]):
+                                        print("Caso C231")
+                                        self.get_equispaced_vertices()
+                                        # Caso limite j-2 = 2, la poligonale diventerà destrorsa
+                                        if curr_idx - 2 == 2:
+                                            self.move_to_midpoint(curr_idx-2)
+                                            self.eliminate_vertex(curr_idx-2)
+                                            self.weak_translation_clockwise(
+                                                2, 0)
+                                            curr_idx -= 1
+                                            continue
+                                        else:
+                                            angle = (self.get_next_clockwise(
+                                                # self.get_v(2).angle) / 2
+                                                2).angle + 2 * math.pi) / 2
+                                            self.weak_translation_clockwise(
+                                                curr_idx, angle)
+                                            continue
+
+                                    # Caso C232
+                                    else:
+                                        print("Caso C232")
+                                        if not self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+2), self.get_v(2)]):
+                                            raise ValueError(
+                                                "Controllo per caso C232 non riuscito, dovrebbe essere falso")
+
+                                        # Caso C2321
+                                        if self.is_right_turn(curr_idx+2):
+                                            print("Caso C2321")
+                                            self.move_to_midpoint(curr_idx+1)
+                                            self.eliminate_vertex(curr_idx+1)
+                                            self.move_to_midpoint(curr_idx)
+                                            self.eliminate_vertex(curr_idx)
+                                            continue
+
+                                        # Caso C2322
+                                        else:
+                                            print("Caso c2322")
+                                            # Risolvo caso limite
+                                            if (curr_idx - 2) % len(self.vertices) == 2:
+                                                angle = (self.get_v(
+                                                    curr_idx+3).angle + self.get_v(2).angle) / 2
+                                            else:
+                                                angle = (self.get_v(
+                                                    curr_idx-2).angle + self.get_v(2).angle) / 2
+
+                                            self.weak_translation_counterclockwise(
+                                                curr_idx+1, angle)
+                                            if not self.is_clockwise([self.get_v(2), self.get_v(curr_idx+1), self.get_v(curr_idx-2)]):
+                                                raise ValueError(
+                                                    "Passaggio non riuscito")
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+
+                                            # Nella teoria sarebbe j ma la lista si è aggiornata con l'eliminazione di i-1
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+                                            # Nella teoria sarebbe j+1 ma la lista si è aggiornata con l'eliminazione di i-1
+                                            self.move_to_midpoint(curr_idx-1)
+                                            self.eliminate_vertex(curr_idx-1)
+                                            curr_idx -= 2
+                                            continue
+
+                        # Caso D
+                        else:
+                            print("Caso D")
+                            # Caso D1
+                            if self.is_clockwise([self.get_v(curr_idx), self.get_v(1), self.get_v(curr_idx-2)]):
+                                print("Caso D1")
+                                # Non facciamo nulla
+                                curr_idx += 1
+                                continue
+
+                            # Caso D2
+                            else:
+                                print("Caso D2")
+                                if not self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx-1), self.get_v(1)]):
+                                    # Nota: hai lasciato B2 qui nel tuo print, potresti volerlo cambiare in D2!
+                                    raise ValueError(
+                                        "Controllo per caso B2 non riuscito, dovrebbe essere falso")
+
+                                # Caso D21
+                                if self.is_right_turn(curr_idx):
+                                    print("Caso D21")
+                                    if not self.is_clockwise([self.get_v(1), self.get_v(curr_idx-3), self.get_v(curr_idx)]):
+                                        # Traslo i-3 fra j e 1
+                                        angle = (self.get_v(1).angle +
+                                                 self.get_v(curr_idx).angle) / 2
+                                        self.weak_translation_counterclockwise(
+                                            curr_idx-3, angle)
+
+                                    self.move_to_midpoint(curr_idx-1)
+                                    self.eliminate_vertex(curr_idx-1)
+                                    curr_idx -= 1
+                                    continue
+
+                                # Caso D22
+                                else:
+                                    print("Caso D22")
+                                    # Caso D221
+                                    if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+1), self.get_v(2)]):
+                                        print("Caso D221")
+                                        # Caso D2211
+
+                                        if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+2), self.get_v(1)]) and not (curr_idx + 2) % len(self.vertices) == 1:
+                                            print("Caso D2211")
+                                            if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx), self.get_v(1)]):
+                                                print(
+                                                    "devo fare la traslazione")
+                                                # Caso limite i-2=2
+                                                if curr_idx - 2 == 2:
+                                                    angle = self.get_v(
+                                                        1).angle + math.pi / 6
+                                                else:
+                                                    angle = (self.get_next_counterclockwise(
+                                                        1).angle + self.get_v(1).angle) / 2
+                                                self.weak_translation_counterclockwise(
+                                                    curr_idx, angle)
+                                                print(
+                                                    f"Ho traslato {curr_idx}")
+                                                if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx), self.get_v(2)]):
+                                                    raise ValueError(
+                                                        "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+                                            curr_idx += 1
+                                            continue
+
+                                        # Caso D2212
+                                        else:
+                                            print("Caso D2212")
+                                            if not self.is_clockwise([self.get_v(1), self.get_v(curr_idx+2), self.get_v(curr_idx)]):
+                                                raise ValueError(
+                                                    "Non entra in nessun caso")
+
+                                            # Caso D22121
+                                            if self.is_left_turn(curr_idx+2):
+                                                print("Caso D22121")
+                                                self.move_to_midpoint(
+                                                    curr_idx+1)
+                                                self.eliminate_vertex(
+                                                    curr_idx+1)
+                                                self.move_to_midpoint(curr_idx)
+                                                self.eliminate_vertex(curr_idx)
+                                                continue
+
+                                            # Caso D22122
+                                            else:
+                                                print("Caso D22122")
+                                                if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                                    # Traslo i-3 in un intorno di 1
+                                                    angle = (self.get_v(
+                                                        1).angle + self.get_next_clockwise(1).angle) / 2
+                                                    self.weak_translation_counterclockwise(
+                                                        curr_idx-3, angle)
+                                                if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                                    raise ValueError(
+                                                        "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+
+                                                if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(1)]):
+                                                    # Traslo j+1
+                                                    angle = (self.get_next_counterclockwise(
+                                                        1).angle + self.get_v(1).angle) / 2
+                                                    self.weak_translation_clockwise(
+                                                        curr_idx+1, angle)
+                                                if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(1)]):
+                                                    raise ValueError(
+                                                        "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+
+                                                self.move_to_midpoint(
+                                                    curr_idx-1)
+                                                self.eliminate_vertex(
+                                                    curr_idx-1)
+                                                curr_idx -= 1
+                                                continue
+
+                                    # caso D222
+                                    else:
+                                        print("Caso D222")
+                                        if not self.is_clockwise([self.get_v(2), self.get_v(curr_idx+1), self.get_v(curr_idx)]):
+                                            raise ValueError(
+                                                "Non entra in nessun caso")
+
+                                        # Passaggio 1
+                                        if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(curr_idx)]):
+                                            angle = (self.get_next_counterclockwise(
+                                                2).angle + self.get_v(2).angle) / 2
+                                            self.weak_translation_counterclockwise(
+                                                curr_idx-2, angle)
+                                        if not self.is_clockwise([self.get_v(curr_idx-2), self.get_v(curr_idx+1), self.get_v(curr_idx)]):
+                                            raise ValueError(
+                                                "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+
+                                        # Passaggio 2
+                                        if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                            angle = (self.get_v(
+                                                1).angle + self.get_v(curr_idx).angle) / 2
+                                            self.weak_translation_counterclockwise(
+                                                curr_idx-3, angle)
+                                        if not self.is_clockwise([self.get_v(curr_idx-3), self.get_v(curr_idx), self.get_v(curr_idx-1)]):
+                                            raise ValueError(
+                                                "Controllo dopo traslazione non riuscito, dovrebbe essere vero")
+
+                                        self.move_to_midpoint(curr_idx-1)
+                                        self.eliminate_vertex(curr_idx-1)
+                                        curr_idx -= 1
+                                        continue
+
+    def is_polygon_reduced(self):
+        n = len(self.vertices)
+        if n == 4:
+            return is_near(self.get_winding_number(), 0)
+        else:
+            return is_near(self.get_winding_number(), (n-1) / 2)
+
+
+def generate_random_polygon(number_vertices: int) -> Polygon:
+    vertices = []
+    for i in range(1, number_vertices + 1):
+        # Genera coordinate casuali tra -1 e 1
+        x = random.uniform(-1, 1)
+        y = math.sqrt(1-x**2) * random.choice([1, -1])
+        vertices.append(Vertex(f"v{i}", x, y))
+
+    return Polygon(vertices)
