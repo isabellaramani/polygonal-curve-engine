@@ -63,8 +63,7 @@ class PolygonVisualizer:
 
         # Aggiungiamo i nomi dei vertici vicino ai punti
         for v in vertices:
-            t = self.ax.text(v.x * 1.1, v.y * 1.1, v.name,
-                             fontsize=10, ha="center")
+            t = self.ax.text(v.x * 1.1, v.y * 1.1, v.name, fontsize=10, ha="center")
             self.my_texts.append(t)
 
         # Aggiorniamo il titolo con il numero del passo
