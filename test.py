@@ -1,5 +1,12 @@
 import math
-from poligoni_stellati import Vertex, Polygon, get_determinant, generate_random_polygon, get_angle_bisector
+import pytest
+from poligoni_stellati import (
+    Vertex,
+    Polygon,
+    get_determinant,
+    generate_random_polygon,
+    get_angle_bisector,
+)
 
 TOLERANCE = 0.0005
 
@@ -39,32 +46,27 @@ def test_get_angle_bisector():
     ang1 = math.radians(30)
     ang2 = math.radians(50)
     expected = math.radians(40)
-    assert is_near(get_angle_bisector(ang1, ang2),
-                   expected)
+    assert is_near(get_angle_bisector(ang1, ang2), expected)
 
     ang1 = math.radians(350)
     ang2 = math.radians(10)
     expected = get_angle_bisector(ang1, ang2)
-    assert is_near(expected, 0.0) or is_near(
-        expected, 2 * math.pi)
+    assert is_near(expected, 0.0) or is_near(expected, 2 * math.pi)
 
     ang1 = math.radians(350)
     ang2 = math.radians(0)
     expected = math.radians(355)
-    assert is_near(get_angle_bisector(ang1, ang2),
-                   expected)
+    assert is_near(get_angle_bisector(ang1, ang2), expected)
 
     ang1 = math.radians(10)
     ang2 = math.radians(350)
     expected = get_angle_bisector(ang1, ang2)
-    assert is_near(expected, 0.0) or is_near(
-        expected, 2 * math.pi)
+    assert is_near(expected, 0.0) or is_near(expected, 2 * math.pi)
 
     ang1 = math.radians(-10)
     ang2 = math.radians(10)
     expected = get_angle_bisector(ang1, ang2)
-    assert is_near(expected, 0.0) or is_near(
-        expected, 2 * math.pi)
+    assert is_near(expected, 0.0) or is_near(expected, 2 * math.pi)
 
 
 def test_is_empty():
@@ -85,8 +87,7 @@ def test_add_vertex():
 
 def test_get_v_i():
     P = Polygon(
-        [Vertex("V1", 5.6, 2.9), Vertex(
-            "V2", 3.2, 4.1), Vertex("V3", 7.6, 1.8)]
+        [Vertex("V1", 5.6, 2.9), Vertex("V2", 3.2, 4.1), Vertex("V3", 7.6, 1.8)]
     )
     assert P.get_v(2).name == "V2"
     # DUBBIO: in questo caso deve restituire esattamente 3 e 4?
@@ -95,8 +96,7 @@ def test_get_v_i():
 
 
 def test_eliminate_vertex():
-    P_1 = Polygon([Vertex("V1", 1, 0), Vertex(
-        "V2", 0, 0), Vertex("V3", -4, 0)])
+    P_1 = Polygon([Vertex("V1", 1, 0), Vertex("V2", 0, 0), Vertex("V3", -4, 0)])
     P_1.eliminate_vertex(2)
     assert len(P_1.vertices) == 2
     P_2 = Polygon([Vertex("V1", 0, 0), Vertex("V2", 1, 2), Vertex("V3", 2, 4)])
@@ -153,8 +153,7 @@ def test_get_winding_number():
 
 
 def test_is_left_turn():
-    P = Polygon([Vertex("V1", 3.4, 0), Vertex(
-        "V2", 1, 0), Vertex("V3", 1, -1)])
+    P = Polygon([Vertex("V1", 3.4, 0), Vertex("V2", 1, 0), Vertex("V3", 1, -1)])
     assert P.is_left_turn(2)
     P_2 = Polygon(
         [
@@ -185,8 +184,7 @@ def test_is_right_turn():
 
 def test_center_polygon():
     P = Polygon(
-        [Vertex("V1", 1.5, 2.4), Vertex(
-            "V2", 3.6, 4.1), Vertex("V3", 2.7, 9.8)]
+        [Vertex("V1", 1.5, 2.4), Vertex("V2", 3.6, 4.1), Vertex("V3", 2.7, 9.8)]
     )
     coords = [(1.5, 2.4), (3.6, 4.1), (2.7, 9.8)]
     # Calcolo centro
@@ -245,13 +243,11 @@ def test_is_clockwise():
     )
     assert P_1.is_clockwise(P_1.vertices)
     P_2 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2),
-         Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
     )
     assert P_2.is_clockwise(P_2.vertices)
     P_3 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2),
-         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
     )
     assert not P_3.is_clockwise(P_3.vertices)
     P_4 = Polygon(
@@ -264,31 +260,47 @@ def test_is_clockwise():
         ]
     )
     assert P_4.is_clockwise(P_4.vertices)
-    P_5 = Polygon(
-        [Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
+    P_5 = Polygon([Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
     assert P_5.is_clockwise(P_5.vertices)
 
-    P_6 = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                   Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                             0.707107, -0.707107),
-                   Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
-                   Vertex("v7", -0.866025, -0.5), Vertex("v8", 0, 1)])
+    P_6 = Polygon(
+        [
+            Vertex("v1", -1, 0),
+            Vertex("v2", 1, 0),
+            Vertex("v3", -0.707107, 0.707107),
+            Vertex("v4", 0.707107, -0.707107),
+            Vertex("v5", 0.707107, 0.707107),
+            Vertex("v6", 0, -1),
+            Vertex("v7", -0.866025, -0.5),
+            Vertex("v8", 0, 1),
+        ]
+    )
     assert P_6.is_clockwise([P_6.get_v(7), P_6.get_v(8), P_6.get_v(2)])
     assert P_6.is_clockwise([P_6.get_v(7), P_6.get_v(8), P_6.get_v(5)])
 
-    P_7 = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                   Vertex("v3", 0, 1), Vertex("v4",
-                                              0, -1),
-                   Vertex("v5", 0.707107, -0.707107), Vertex(
-        "v6", 0.5, -0.866025)
-    ])
+    P_7 = Polygon(
+        [
+            Vertex("v1", -1, 0),
+            Vertex("v2", 1, 0),
+            Vertex("v3", 0, 1),
+            Vertex("v4", 0, -1),
+            Vertex("v5", 0.707107, -0.707107),
+            Vertex("v6", 0.5, -0.866025),
+        ]
+    )
     assert P_7.is_clockwise([P_7.get_v(2), P_7.get_v(2), P_7.get_v(5)])
 
-    P_8 = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
-                   Vertex("v3", 0, 1), Vertex("v4", 0.707107, -0.707107),
-                   Vertex("v5", -0.707107, -0.707107), Vertex("v6", 0, -1)])
-    assert not P_8.is_clockwise([P_8.get_v(5),
-                                 P_8.get_v(6), P_8.get_v(1)])
+    P_8 = Polygon(
+        [
+            Vertex("v1", -0.866025, 0.5),
+            Vertex("v2", 0.866025, 0.5),
+            Vertex("v3", 0, 1),
+            Vertex("v4", 0.707107, -0.707107),
+            Vertex("v5", -0.707107, -0.707107),
+            Vertex("v6", 0, -1),
+        ]
+    )
+    assert not P_8.is_clockwise([P_8.get_v(5), P_8.get_v(6), P_8.get_v(1)])
 
 
 def test_is_counterclockwise():
@@ -302,13 +314,11 @@ def test_is_counterclockwise():
     )
     assert not P_1.is_counterclockwise(P_1.vertices)
     P_2 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2),
-         Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, 1)]
     )
     assert not P_2.is_counterclockwise(P_2.vertices)
     P_3 = Polygon(
-        [Vertex("V1", 0.5, math.sqrt(3) / 2),
-         Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
+        [Vertex("V1", 0.5, math.sqrt(3) / 2), Vertex("V2", -1, 0), Vertex("V3", 0, -1)]
     )
     assert P_3.is_counterclockwise(P_3.vertices)
     P_4 = Polygon(
@@ -321,8 +331,7 @@ def test_is_counterclockwise():
         ]
     )
     assert not P_4.is_counterclockwise(P_4.vertices)
-    P_5 = Polygon(
-        [Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
+    P_5 = Polygon([Vertex("V1", -1, 0), Vertex("V2", -1, 0), Vertex("V3", 0, -1)])
     assert P_5.is_counterclockwise(P_5.vertices)
 
 
@@ -376,8 +385,7 @@ def test_sort_vertices_clockwise():
     for v, expected_name in zip(sorted_vertices_2, expected_order_2):
         assert v.name == expected_name
 
-    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2),
-              P_2.get_v(3), P_2.get_v(1)]
+    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2), P_2.get_v(3), P_2.get_v(1)]
     sorted_vertices_3 = P_2.sort_vertices_clockwise(list_3)
     expected_order_3 = ["V4", "V2", "V6", "V3", "V1"]
     for v, expected_name in zip(sorted_vertices_3, expected_order_3):
@@ -420,8 +428,7 @@ def test_sort_vertices_counterclockwise():
     for v, expected_name in zip(sorted_vertices_2, expected_order_2):
         assert v.name == expected_name
 
-    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2),
-              P_2.get_v(3), P_2.get_v(1)]
+    list_3 = [P_2.get_v(4), P_2.get_v(6), P_2.get_v(2), P_2.get_v(3), P_2.get_v(1)]
     sorted_vertices_3 = P_2.sort_vertices_counterclockwise(list_3)
     expected_order_3 = ["V4", "V1", "V3", "V6", "V2"]
     for v, expected_name in zip(sorted_vertices_3, expected_order_3):
@@ -442,11 +449,12 @@ def test_get_equispaced_vertices():
     for v, expected_angle in zip(P.vertices, expected_angles):
         assert is_near(v.angle, expected_angle)
 
+
 def test_get_equispaced_vertices_fixed_12():
     P = Polygon(
         [
             Vertex("V1", -1, 0),
-            Vertex("V2", 1,0),
+            Vertex("V2", 1, 0),
             Vertex("V3", 1 / 2, math.sqrt(3) / 2),
             Vertex("V4", math.sqrt(2) / 2, math.sqrt(2) / 2),
         ]
@@ -642,361 +650,410 @@ def test_get_next_counterclockwise():
     assert P.get_next_counterclockwise(1).name == "V2"
 
 
-def test_reduce_polygon():
-
-    # Caso A1
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
-                 Vertex("v3", 0, 1), Vertex("v4", 0.707107, -0.707107),
-                 Vertex("v5", -0.707107, -0.707107), Vertex("v6", 0, -1)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso A211 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                          0.707107, -0.707107),
-                Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
-                Vertex("v7", -0.866025, -0.5), Vertex("v8", 0, 1)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso A212 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                          0.707107, -0.707107),
-                Vertex("v5", 0.707107, 0.707107), Vertex("v6", 0, -1),
-                Vertex("v7", -0.866025, -0.5), Vertex("v8", 0.866025, 0.5)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso A22 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                          0.707107, -0.707107),
-                Vertex("v5", 0.707107, 0.707107), Vertex(
-        "v6", -0.707107, -0.707107),
-        Vertex("v7", 0, 1), Vertex("v8", 0, -1)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso A2321 su tutti i vertici
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                           0, -1),
-                Vertex("v5", -0.707107, -0.707107), Vertex(
-        "v6", 0.707107, -0.707107),
-        Vertex("v7", -0.866025, -0.5), Vertex(
-        "v8", 0.866025, 0.5)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso A2322 su tutti i vertici
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                           0.707107, -0.707107),
-                Vertex("v5", -0.707107, -0.707107), Vertex(
-        "v6", 0.866025, -0.5),
-        Vertex("v7", -0.866025, -0.5), Vertex(
-        "v8", 0, -1)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso B21 su tutti i vertici
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                           0, -1),
-                Vertex("v5", 0.707107, -0.707107), Vertex(
-        "v6", 0.5, -0.866025)
-    ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso B2211 su tutti i vertici
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                           0, -1),
-                Vertex("v5", 0.707107, -0.707107), Vertex(
-        "v6", -0.5, -0.866025), Vertex("v7", 0.866025, 0.5)
-    ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso B22121 su tutti i vertici
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                           0, -1),
-                Vertex("v5", 0.707107, -0.707107), Vertex(
-        "v6", -0.5, -0.866025), Vertex("v7", 0.866025, -0.5), Vertex("v8", -0.5, 0.866025)
-    ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso B22122 su tutti i vertici
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                           0, -1),
-                Vertex("v5", 0.707107, -0.707107), Vertex(
-        "v6", -0.866025, -0.5), Vertex("v7", 0.866025, -0.5), Vertex("v8", -0.5, -0.866025)
-    ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso B222 su tutti i vertici
-    P = Polygon([Vertex("v1", -1, 0), Vertex("v2", 1, 0),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                          0, -1),
-                Vertex("v5", 0, 1), Vertex(
-        "v6", -0.866025, -0.5), Vertex("v7", 0.866025, -0.5), Vertex("v8", 0.5, 0.866025)
-    ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso C1 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5),
-                Vertex("v2", 0.866025, 0.5), Vertex("v3", -0.707107, 0.707107),
-                Vertex("v4", 0.707107, 0.707107), Vertex("v5", 0, 1)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso C211 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                          0, -1),
-                Vertex("v5", 0.707107, 0.707107), Vertex(
-                    "v6", 0.707107, -0.707107),
-                Vertex("v7", 0.5, -0.866025)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso C212 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 0.866025, 0.5),
-                Vertex("v3", -0.707107, 0.707107), Vertex("v4",
-                                                          0, -1),
-                Vertex("v5", 0.707107, 0.707107), Vertex(
-                    "v6", 0.707107, -0.707107),
-                Vertex("v7", -0.5, -0.866025)])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso C22 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
-                 Vertex("v3", 0.707107, 0.707107), Vertex("v4",
-                                                         0.707107, -0.707107),
-                Vertex("v5", -0.707107, 0.707107), Vertex(
-                    "v6", -0.707107, -0.707107),
+@pytest.mark.parametrize(
+    "P",
+    [
+        # Caso A1
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", 0, 1),
+                Vertex("v4", 0.707107, -0.707107),
+                Vertex("v5", -0.707107, -0.707107),
+                Vertex("v6", 0, -1),
+            ]
+        ),
+        # Caso A211 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0.707107, -0.707107),
+                Vertex("v5", 0.707107, 0.707107),
+                Vertex("v6", 0, -1),
+                Vertex("v7", -0.866025, -0.5),
+                Vertex("v8", 0, 1),
+            ]
+        ),
+        # Caso A212 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 1, 0),
+                Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0.707107, -0.707107),
+                Vertex("v5", 0.707107, 0.707107),
+                Vertex("v6", 0, -1),
+                Vertex("v7", -0.866025, -0.5),
+                Vertex("v8", 0.866025, 0.5),
+            ]
+        ),
+        # Caso A22 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 1, 0),
+                Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0.707107, -0.707107),
+                Vertex("v5", 0.707107, 0.707107),
+                Vertex("v6", -0.707107, -0.707107),
+                Vertex("v7", 0, 1),
+                Vertex("v8", 0, -1),
+            ]
+        ),
+        # Caso A2321 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -1, 0),
+                Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1),
+                Vertex("v4", 0, -1),
+                Vertex("v5", -0.707107, -0.707107),
+                Vertex("v6", 0.707107, -0.707107),
+                Vertex("v7", -0.866025, -0.5),
+                Vertex("v8", 0.866025, 0.5),
+            ]
+        ),
+        # Caso A2322 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -1, 0),
+                Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1),
+                Vertex("v4", 0.707107, -0.707107),
+                Vertex("v5", -0.707107, -0.707107),
+                Vertex("v6", 0.866025, -0.5),
+                Vertex("v7", -0.866025, -0.5),
+                Vertex("v8", 0, -1),
+            ]
+        ),
+        # Caso B21 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -1, 0),
+                Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1),
+                Vertex("v4", 0, -1),
+                Vertex("v5", 0.707107, -0.707107),
+                Vertex("v6", 0.5, -0.866025),
+            ]
+        ),
+        # Caso B2211 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -1, 0),
+                Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1),
+                Vertex("v4", 0, -1),
+                Vertex("v5", 0.707107, -0.707107),
+                Vertex("v6", -0.5, -0.866025),
+                Vertex("v7", 0.866025, 0.5),
+            ]
+        ),
+        # Caso B22121 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -1, 0),
+                Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1),
+                Vertex("v4", 0, -1),
+                Vertex("v5", 0.707107, -0.707107),
+                Vertex("v6", -0.5, -0.866025),
+                Vertex("v7", 0.866025, -0.5),
+                Vertex("v8", -0.5, 0.866025),
+            ]
+        ),
+        # Caso B22122 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -1, 0),
+                Vertex("v2", 1, 0),
+                Vertex("v3", 0, 1),
+                Vertex("v4", 0, -1),
+                Vertex("v5", 0.707107, -0.707107),
+                Vertex("v6", -0.866025, -0.5),
+                Vertex("v7", 0.866025, -0.5),
+                Vertex("v8", -0.5, -0.866025),
+            ]
+        ),
+        # Caso B222 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -1, 0),
+                Vertex("v2", 1, 0),
+                Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0, -1),
+                Vertex("v5", 0, 1),
+                Vertex("v6", -0.866025, -0.5),
+                Vertex("v7", 0.866025, -0.5),
+                Vertex("v8", 0.5, 0.866025),
+            ]
+        ),
+        # Caso C1 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0.707107, 0.707107),
+                Vertex("v5", 0, 1),
+            ]
+        ),
+        # Caso C211 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0, -1),
+                Vertex("v5", 0.707107, 0.707107),
+                Vertex("v6", 0.707107, -0.707107),
+                Vertex("v7", 0.5, -0.866025),
+            ]
+        ),
+        # Caso C212 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 0.866025, 0.5),
+                Vertex("v3", -0.707107, 0.707107),
+                Vertex("v4", 0, -1),
+                Vertex("v5", 0.707107, 0.707107),
+                Vertex("v6", 0.707107, -0.707107),
+                Vertex("v7", -0.5, -0.866025),
+            ]
+        ),
+        # Caso C22 su tutti i vertici
+        Polygon(
+            [
+                Vertex("v1", -0.866025, 0.5),
+                Vertex("v2", 1, 0),
+                Vertex("v3", 0.707107, 0.707107),
+                Vertex("v4", 0.707107, -0.707107),
+                Vertex("v5", -0.707107, 0.707107),
+                Vertex("v6", -0.707107, -0.707107),
                 Vertex("v7", 0.5, 0.866025),
-               Vertex("v8", 0, -1), Vertex("v9", 0, 1)])
+                Vertex("v8", 0, -1),
+                Vertex("v9", 0, 1),
+            ]
+        ),
+        Polygon(
+            [
+                Vertex("v1", -0.7663019028873093, -0.642480656231212),
+                Vertex("v2", 0.5835688924714628, 0.8120636352772056),
+                Vertex("v3", -0.5758800273453695, 0.8175342158617561),
+                Vertex("v4", 0.4971473368031256, -0.8676661371227758),
+                Vertex("v5", 0.4048289304860413, 0.9143924414831566),
+                Vertex("v6", -0.0019052602442695132, 0.9999981849900537),
+                Vertex("v7", 0.4734719948529662, -0.8808088726221783),
+                Vertex("v8", 0.9961738316387703, -0.08739391945742568),
+                Vertex("v9", -0.45688439031782035, 0.8895260838693341),
+                Vertex("v10", 0.6673901519308159, 0.7447082550272708),
+            ]
+        ),
+        # Risolto con casi limite C212 e D211
+        Polygon(
+            [
+                Vertex("v1", -0.027064249416564268, 0.99963369611249),
+                Vertex("v2", -0.47046008597247124, 0.8824212755293103),
+                Vertex("v3", 0.043156452696938574, -0.999068326287355),
+                Vertex("v4", 0.5789189989831471, 0.8153850578814594),
+                Vertex("v5", -0.6194249797590352, 0.7850558543508346),
+                Vertex("v6", -0.6988412987788333, 0.7152767570116573),
+                Vertex("v7", -0.9469475854993759, -0.3213880369847364),
+                Vertex("v8", 0.8233008094392888, 0.5676053005184253),
+                Vertex("v9", 0.32845338780422884, -0.9445201808537099),
+                Vertex("v10", -0.09221411342817709, -0.9957392014401438),
+            ]
+        ),
+        # Caso D222 risolto (era sbagliata traslazione da fare)
+        Polygon(
+            [
+                Vertex("v1", -0.5251063764080388, 0.8510365993631643),
+                Vertex("v2", -0.8450047362943791, 0.5347588200675766),
+                Vertex("v3", 0.1124306784212028, -0.9936595707533582),
+                Vertex("v4", -0.396125057669658, -0.9181965686530363),
+                Vertex("v5", -0.09199680840970714, -0.9957593018608601),
+                Vertex("v6", 0.1421516850156288, 0.9898448860539805),
+                Vertex("v7", -0.05823585492842853, 0.9983028524454666),
+                Vertex("v8", 0.7574307225242187, 0.6529155386238253),
+                Vertex("v9", 0.4462509178182765, 0.8949078826037604),
+                Vertex("v10", -0.8010653653165059, 0.5985768793482864),
+            ]
+        ),
+        # Caso B22121 con eliminazione di 1
+        Polygon(
+            [
+                Vertex("v1", 0.5219905827378799, 0.8529512480399853),
+                Vertex("v2", 0.7804265648630979, -0.6252474524985966),
+                Vertex("v3", 0.7265185939468239, 0.687146805747891),
+                Vertex("v4", -0.7858300690463504, 0.6184424812240893),
+                Vertex("v5", 0.5782723606381313, -0.8158437821801445),
+                Vertex("v6", 0.9049041957432591, -0.4256153151923054),
+                Vertex("v7", -0.8844293667721761, 0.46667407812194545),
+                Vertex("v8", -0.920908659804275, -0.38977845027334956),
+                Vertex("v9", -0.1021141749577048, -0.994772685226483),
+                Vertex("v10", 0.23800921559381294, -0.9712628960752171),
+            ]
+        ),
+        # # Caso A231 su tutti i vertici
+        # Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
+        #         Vertex("v3", 0, 1), Vertex("v4",
+        #                                    0, -1),
+        #         Vertex("v5", -0.707107, -0.707107), Vertex(
+        # "v6", 0.707107, -0.707107),
+        # Vertex("v7", -0.707107, 0.707107)]),
+        Polygon(
+            [
+                Vertex("v1", -0.8621451263871016, 0.5066614067076439),
+                Vertex("v2", 0.028219615828837252, 0.9996017473386453),
+                Vertex("v3", -0.4759043486670984, 0.8794970442927849),
+                Vertex("v4", -0.590805663549171, 0.8068138991850746),
+                Vertex("v5", -0.6319788247518952, 0.7749856547480175),
+                Vertex("v6", 0.5623965762117165, 0.8268676381775616),
+                Vertex("v7", 0.5239292349433162, 0.8517617957925275),
+                Vertex("v8", -0.0013135761418423542, 0.9999991372584877),
+                Vertex("v9", -0.11065117355824272, -0.9938593048264849),
+                Vertex("v10", 0.8130874681602098, 0.5821415370172616),
+            ]
+        ),
+    ],
+)
+def test_reduce_polygon(P):
+
     P.reduce_polygon()
     assert P.is_polygon_reduced()
 
-    P = Polygon([
-            Vertex("v1", -0.7663019028873093, -0.642480656231212),
-            Vertex("v2", 0.5835688924714628, 0.8120636352772056),
-            Vertex("v3", -0.5758800273453695, 0.8175342158617561),
-            Vertex("v4", 0.4971473368031256, -0.8676661371227758),
-            Vertex("v5", 0.4048289304860413, 0.9143924414831566),
-            Vertex("v6", -0.0019052602442695132, 0.9999981849900537),
-            Vertex("v7", 0.4734719948529662, -0.8808088726221783),
-            Vertex("v8", 0.9961738316387703, -0.08739391945742568),
-            Vertex("v9", -0.45688439031782035, 0.8895260838693341),
-            Vertex("v10", 0.6673901519308159, 0.7447082550272708)
-        ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
 
-    # Risolto con casi limite C212 e D211
-    P = Polygon([
-        Vertex("v1", -0.027064249416564268, 0.99963369611249),
-        Vertex("v2", -0.47046008597247124, 0.8824212755293103),
-        Vertex("v3", 0.043156452696938574, -0.999068326287355),
-        Vertex("v4", 0.5789189989831471, 0.8153850578814594),
-        Vertex("v5", -0.6194249797590352, 0.7850558543508346),
-        Vertex("v6", -0.6988412987788333, 0.7152767570116573),
-        Vertex("v7", -0.9469475854993759, -0.3213880369847364),
-        Vertex("v8", 0.8233008094392888, 0.5676053005184253),
-        Vertex("v9", 0.32845338780422884, -0.9445201808537099),
-        Vertex("v10", -0.09221411342817709, -0.9957392014401438)
-    ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
+# Casi da gestire
 
-    # Caso D222 risolto (era sbagliata traslazione da fare)
-    P = Polygon([
-            Vertex("v1", -0.5251063764080388, 0.8510365993631643),
-            Vertex("v2", -0.8450047362943791, 0.5347588200675766),
-            Vertex("v3", 0.1124306784212028, -0.9936595707533582),
-            Vertex("v4", -0.396125057669658, -0.9181965686530363),
-            Vertex("v5", -0.09199680840970714, -0.9957593018608601),
-            Vertex("v6", 0.1421516850156288, 0.9898448860539805),
-            Vertex("v7", -0.05823585492842853, 0.9983028524454666),
-            Vertex("v8", 0.7574307225242187, 0.6529155386238253),
-            Vertex("v9", 0.4462509178182765, 0.8949078826037604),
-            Vertex("v10", -0.8010653653165059, 0.5985768793482864)
-        ])
-    P.reduce_polygon()
-    assert P.is_polygon_reduced()
-
-    # Caso B22121 con eliminazione di 1
-    P = Polygon([
-            Vertex("v1", 0.5219905827378799, 0.8529512480399853),
-            Vertex("v2", 0.7804265648630979, -0.6252474524985966),
-            Vertex("v3", 0.7265185939468239, 0.687146805747891),
-            Vertex("v4", -0.7858300690463504, 0.6184424812240893),
-            Vertex("v5", 0.5782723606381313, -0.8158437821801445),
-            Vertex("v6", 0.9049041957432591, -0.4256153151923054),
-            Vertex("v7", -0.8844293667721761, 0.46667407812194545),
-            Vertex("v8", -0.920908659804275, -0.38977845027334956),
-            Vertex("v9", -0.1021141749577048, -0.994772685226483),
-            Vertex("v10", 0.23800921559381294, -0.9712628960752171)
-        ])
-
-    # Caso A231 su tutti i vertici
-    P = Polygon([Vertex("v1", -0.866025, 0.5), Vertex("v2", 1, 0),
-                Vertex("v3", 0, 1), Vertex("v4",
-                                           0, -1),
-                Vertex("v5", -0.707107, -0.707107), Vertex(
-        "v6", 0.707107, -0.707107),
-        Vertex("v7", -0.707107, 0.707107)])
-    P.reduce_polygon()
-    # assert P.is_polygon_reduced()
-
-    P = Polygon([
-            Vertex("v1", -0.8621451263871016, 0.5066614067076439),
-            Vertex("v2", 0.028219615828837252, 0.9996017473386453),
-            Vertex("v3", -0.4759043486670984, 0.8794970442927849),
-            Vertex("v4", -0.590805663549171, 0.8068138991850746),
-            Vertex("v5", -0.6319788247518952, 0.7749856547480175),
-            Vertex("v6", 0.5623965762117165, 0.8268676381775616),
-            Vertex("v7", 0.5239292349433162, 0.8517617957925275),
-            Vertex("v8", -0.0013135761418423542, 0.9999991372584877),
-            Vertex("v9", -0.11065117355824272, -0.9938593048264849),
-            Vertex("v10", 0.8130874681602098, 0.5821415370172616)
-        ])
-
-    # Caso A22 risolto (nel primo passaggio dovevo mettere la verifica dopo aver effettuato la prima traslazione)
-    P = Polygon([
-            Vertex("v1", -0.3702028565084752, 0.9289509379041314),
-            Vertex("v2", -0.1998719792058199, -0.9798220205365606),
-            Vertex("v3", 0.9401500784375194, -0.3407606638300936),
-            Vertex("v4", -0.6447138975617734, -0.7644239597832522),
-            Vertex("v5", 0.901916213565757, -0.4319110367971717),
-            Vertex("v6", -0.8333995151864555, -0.5526710125264224),
-            Vertex("v7", 0.6497999019804244, 0.76010531335219),
-            Vertex("v8", -0.6005544978507085, -0.7995838261941542),
-            Vertex("v9", -0.756637204282677, -0.6538349494293606),
-            Vertex("v10", -0.7444806253423975, 0.6676440657189974)
-        ])
-    # Risolto con gestione di vertici sovrapposti nelole weak translation
-    P = Polygon([
-            Vertex("v1", 0.9321080429206021, -0.36218033674224365),
-            Vertex("v2", -0.8009534765116428, 0.5987265890737719),
-            Vertex("v3", -0.8704112598188085, -0.4923253383491801),
-            Vertex("v4", -0.26855455403114226, -0.9632644764077695),
-            Vertex("v5", -0.10772600870428262, 0.9941806209379888),
-            Vertex("v6", -0.9675375201536438, -0.25272741658739234),
-            Vertex("v7", -0.8682184637043391, -0.49618212309884485),
-            Vertex("v8", -0.7892939892326432, -0.6140154709461483),
-            Vertex("v9", -0.7771818171528171, -0.6292761103736937),
-            Vertex("v10", -0.11224889726286946, 0.9936801221033205)
-        ])
-    # Risolto con D22122 con cambio di riferimento
-    P = Polygon([
-            Vertex("v1", -0.783601154338786, 0.6212642198927297),
-            Vertex("v2", 0.1278279767228887, -0.9917963542819326),
-            Vertex("v3", -0.738849487605207, 0.6738704880505771),
-            Vertex("v4", 0.42095985155279125, 0.9070792707259118),
-            Vertex("v5", 0.5592132305479929, -0.8290238614057363),
-            Vertex("v6", 0.7443738516374385, -0.667763108443739),
-            Vertex("v7", 0.7067287122586225, 0.707484648080274),
-            Vertex("v8", 0.5156864281824529, -0.8567773968706363),
-            Vertex("v9", 0.0985247668394238, 0.9951345990966434),
-            Vertex("v10", 0.5927485623637383, -0.805387572424433)
-        ])
-
-    # DA RISOLVERE:
-
-
-    # Casi in cui inizia con svolta a sinistra in 2 e continua
-    # con svolta a destrra in 2
-    # Ancora da ridurre
-
-    # Caso E22
-    P = Polygon([
-            Vertex("v1", 0.9386937996125804, 0.34475201314698195),
-            Vertex("v2", 0.5577227493581884, -0.8300273097003154),
-            Vertex("v3", 0.8495709053973892, -0.5274744322735088),
-            Vertex("v4", 0.37382803211697113, 0.9274980336386449),
-            Vertex("v5", -0.9282248435043767, 0.3720196767662637),
-            Vertex("v6", 0.11082186843019914, 0.9938402856986829),
-            Vertex("v7", 0.055353192646783844, -0.9984668367371087),
-            Vertex("v8", 0.09183406603173161, 0.9957743239891654),
-            Vertex("v9", -0.05595823175927017, -0.9984331105779575),
-            Vertex("v10", 0.5700494503892732, -0.821610384617239)
-        ])
-    P.reduce_polygon()
-    # assert P.is_polygon_reduced()
-
-    P = Polygon([
-        Vertex("v1", 0.3437300059454709, 0.9390685188061234),
-        Vertex("v2", -0.1664430775964021, 0.9860510645601668),
-        Vertex("v3", 0.9364502081098824, 0.3508005241315324),
-        Vertex("v4", 0.40515783346200185, -0.9142467555230245),
-        Vertex("v5", 0.37018462362294713, -0.9289582038138944),
-        Vertex("v6", -0.5671139068187114, -0.8236393729617459),
-        Vertex("v7", 0.2411510433589672, 0.9704875961530274),
-        Vertex("v8", 0.20813455918082324, -0.9781002020624494),
-        Vertex("v9", -0.8931146784951343, 0.44982904647936306),
-        Vertex("v10", -0.04240571295747442, 0.9991004731800343)
-    ])
-
-    P = Polygon([
-        Vertex("v1", 0.8221323634570041, 0.5692963876194899),
-        Vertex("v2", -0.029601855637303, -0.9995617690482306),
-        Vertex("v3", 0.6783352487237904, -0.7347525368032651),
-        Vertex("v4", 0.5204953623621824, -0.8538644961347558),
-        Vertex("v5", -0.9160425142349107, 0.4010811789578058),
-        Vertex("v6", -0.9484180585246944, 0.31702237502146335),
-        Vertex("v7", -0.705221919945, 0.7089866314882728),
-        Vertex("v8", -0.17617028866285156, 0.9843597052868669),
-        Vertex("v9", -0.249781672951094, 0.968302182099035),
-        Vertex("v10", -0.987741698852717, 0.15609720160063242)
-    ])
-
-    P = Polygon([
-        Vertex("v1", 0.9309730039131232, -0.3650880249816144),
-        Vertex("v2", 0.12903512969783848, -0.9916400230445834),
-        Vertex("v3", 0.1778554419797136, -0.9840566252803752),
-        Vertex("v4", -0.3976427746306157, -0.9175403118032828),
-        Vertex("v5", 0.1118661904643743, 0.993723279102884),
-        Vertex("v6", -0.7421716664243356, 0.6702098309909551),
-        Vertex("v7", -0.6174924619511899, 0.7865767981789562),
-        Vertex("v8", 0.1442465829068753, 0.9895417744186902),
-        Vertex("v9", -0.8480422565708308, 0.5299286094090914),
-        Vertex("v10", -0.939596700200938, -0.3422835680711369)
-    ])
-
-    P = Polygon([
-        Vertex("v1", 0.9822979314554909, -0.1873253155829816),
-        Vertex("v2", -0.8676696270010948, 0.4971412459048042),
-        Vertex("v3", -0.4846368510846364, -0.8747154523448),
-        Vertex("v4", -0.29340126152361345, -0.955989382648339),
-        Vertex("v5", -0.3602401598579339, -0.9328595967376496),
-        Vertex("v6", 0.2503476116287866, -0.9681560170508482),
-        Vertex("v7", -0.7014911941776061, 0.7126781212379655),
-        Vertex("v8", 0.17165646568010495, -0.9851568696356002),
-        Vertex("v9", 0.7087614959245248, 0.7054481851240599),
-        Vertex("v10", 0.9340723516373792, -0.35708380235823656)
-    ])
-
-    P= Polygon([
-            Vertex("v1", 0.8411518316704101, 0.5407990348341185),
-            Vertex("v2", -0.29171521212954477, -0.9565052195425882),
-            Vertex("v3", 0.23823813420522888, -0.9712067706778055),
-            Vertex("v4", 0.7387788335110383, -0.6739479469188029),
-            Vertex("v5", -0.5706475887748501, -0.821195061739566),
-            Vertex("v6", -0.7824426077330646, -0.6227227036200637),
-            Vertex("v7", 0.9090667286442682, -0.41665055246814264),
-            Vertex("v8", -0.05637398002140226, -0.9984097226973235),
-            Vertex("v9", -0.17900977021110775, 0.9838472961638745),
-            Vertex("v10", 0.38823130650685833, -0.9215619635423208)
-        ])
+#
+# # Caso A22 risolto (nel primo passaggio dovevo mettere la verifica dopo aver effettuato la prima traslazione)
+# P = Polygon([
+#         Vertex("v1", -0.3702028565084752, 0.9289509379041314),
+#         Vertex("v2", -0.1998719792058199, -0.9798220205365606),
+#         Vertex("v3", 0.9401500784375194, -0.3407606638300936),
+#         Vertex("v4", -0.6447138975617734, -0.7644239597832522),
+#         Vertex("v5", 0.901916213565757, -0.4319110367971717),
+#         Vertex("v6", -0.8333995151864555, -0.5526710125264224),
+#         Vertex("v7", 0.6497999019804244, 0.76010531335219),
+#         Vertex("v8", -0.6005544978507085, -0.7995838261941542),
+#         Vertex("v9", -0.756637204282677, -0.6538349494293606),
+#         Vertex("v10", -0.7444806253423975, 0.6676440657189974)
+#     ])
+# # Risolto con gestione di vertici sovrapposti nelole weak translation
+# P = Polygon([
+#         Vertex("v1", 0.9321080429206021, -0.36218033674224365),
+#         Vertex("v2", -0.8009534765116428, 0.5987265890737719),
+#         Vertex("v3", -0.8704112598188085, -0.4923253383491801),
+#         Vertex("v4", -0.26855455403114226, -0.9632644764077695),
+#         Vertex("v5", -0.10772600870428262, 0.9941806209379888),
+#         Vertex("v6", -0.9675375201536438, -0.25272741658739234),
+#         Vertex("v7", -0.8682184637043391, -0.49618212309884485),
+#         Vertex("v8", -0.7892939892326432, -0.6140154709461483),
+#         Vertex("v9", -0.7771818171528171, -0.6292761103736937),
+#         Vertex("v10", -0.11224889726286946, 0.9936801221033205)
+#     ])
+# # Risolto con D22122 con cambio di riferimento
+# P = Polygon([
+#         Vertex("v1", -0.783601154338786, 0.6212642198927297),
+#         Vertex("v2", 0.1278279767228887, -0.9917963542819326),
+#         Vertex("v3", -0.738849487605207, 0.6738704880505771),
+#         Vertex("v4", 0.42095985155279125, 0.9070792707259118),
+#         Vertex("v5", 0.5592132305479929, -0.8290238614057363),
+#         Vertex("v6", 0.7443738516374385, -0.667763108443739),
+#         Vertex("v7", 0.7067287122586225, 0.707484648080274),
+#         Vertex("v8", 0.5156864281824529, -0.8567773968706363),
+#         Vertex("v9", 0.0985247668394238, 0.9951345990966434),
+#         Vertex("v10", 0.5927485623637383, -0.805387572424433)
+#     ])
+#
+# # DA RISOLVERE:
+#
+#
+# # Casi in cui inizia con svolta a sinistra in 2 e continua
+# # con svolta a destrra in 2
+# # Ancora da ridurre
+#
+# # Caso E22
+# P = Polygon([
+#         Vertex("v1", 0.9386937996125804, 0.34475201314698195),
+#         Vertex("v2", 0.5577227493581884, -0.8300273097003154),
+#         Vertex("v3", 0.8495709053973892, -0.5274744322735088),
+#         Vertex("v4", 0.37382803211697113, 0.9274980336386449),
+#         Vertex("v5", -0.9282248435043767, 0.3720196767662637),
+#         Vertex("v6", 0.11082186843019914, 0.9938402856986829),
+#         Vertex("v7", 0.055353192646783844, -0.9984668367371087),
+#         Vertex("v8", 0.09183406603173161, 0.9957743239891654),
+#         Vertex("v9", -0.05595823175927017, -0.9984331105779575),
+#         Vertex("v10", 0.5700494503892732, -0.821610384617239)
+#     ])
+# P.reduce_polygon()
+# # assert P.is_polygon_reduced()
+#
+# P = Polygon([
+#     Vertex("v1", 0.3437300059454709, 0.9390685188061234),
+#     Vertex("v2", -0.1664430775964021, 0.9860510645601668),
+#     Vertex("v3", 0.9364502081098824, 0.3508005241315324),
+#     Vertex("v4", 0.40515783346200185, -0.9142467555230245),
+#     Vertex("v5", 0.37018462362294713, -0.9289582038138944),
+#     Vertex("v6", -0.5671139068187114, -0.8236393729617459),
+#     Vertex("v7", 0.2411510433589672, 0.9704875961530274),
+#     Vertex("v8", 0.20813455918082324, -0.9781002020624494),
+#     Vertex("v9", -0.8931146784951343, 0.44982904647936306),
+#     Vertex("v10", -0.04240571295747442, 0.9991004731800343)
+# ])
+#
+# P = Polygon([
+#     Vertex("v1", 0.8221323634570041, 0.5692963876194899),
+#     Vertex("v2", -0.029601855637303, -0.9995617690482306),
+#     Vertex("v3", 0.6783352487237904, -0.7347525368032651),
+#     Vertex("v4", 0.5204953623621824, -0.8538644961347558),
+#     Vertex("v5", -0.9160425142349107, 0.4010811789578058),
+#     Vertex("v6", -0.9484180585246944, 0.31702237502146335),
+#     Vertex("v7", -0.705221919945, 0.7089866314882728),
+#     Vertex("v8", -0.17617028866285156, 0.9843597052868669),
+#     Vertex("v9", -0.249781672951094, 0.968302182099035),
+#     Vertex("v10", -0.987741698852717, 0.15609720160063242)
+# ])
+#
+# P = Polygon([
+#     Vertex("v1", 0.9309730039131232, -0.3650880249816144),
+#     Vertex("v2", 0.12903512969783848, -0.9916400230445834),
+#     Vertex("v3", 0.1778554419797136, -0.9840566252803752),
+#     Vertex("v4", -0.3976427746306157, -0.9175403118032828),
+#     Vertex("v5", 0.1118661904643743, 0.993723279102884),
+#     Vertex("v6", -0.7421716664243356, 0.6702098309909551),
+#     Vertex("v7", -0.6174924619511899, 0.7865767981789562),
+#     Vertex("v8", 0.1442465829068753, 0.9895417744186902),
+#     Vertex("v9", -0.8480422565708308, 0.5299286094090914),
+#     Vertex("v10", -0.939596700200938, -0.3422835680711369)
+# ])
+#
+# P = Polygon([
+#     Vertex("v1", 0.9822979314554909, -0.1873253155829816),
+#     Vertex("v2", -0.8676696270010948, 0.4971412459048042),
+#     Vertex("v3", -0.4846368510846364, -0.8747154523448),
+#     Vertex("v4", -0.29340126152361345, -0.955989382648339),
+#     Vertex("v5", -0.3602401598579339, -0.9328595967376496),
+#     Vertex("v6", 0.2503476116287866, -0.9681560170508482),
+#     Vertex("v7", -0.7014911941776061, 0.7126781212379655),
+#     Vertex("v8", 0.17165646568010495, -0.9851568696356002),
+#     Vertex("v9", 0.7087614959245248, 0.7054481851240599),
+#     Vertex("v10", 0.9340723516373792, -0.35708380235823656)
+# ])
+#
+# P= Polygon([
+#         Vertex("v1", 0.8411518316704101, 0.5407990348341185),
+#         Vertex("v2", -0.29171521212954477, -0.9565052195425882),
+#         Vertex("v3", 0.23823813420522888, -0.9712067706778055),
+#         Vertex("v4", 0.7387788335110383, -0.6739479469188029),
+#         Vertex("v5", -0.5706475887748501, -0.821195061739566),
+#         Vertex("v6", -0.7824426077330646, -0.6227227036200637),
+#         Vertex("v7", 0.9090667286442682, -0.41665055246814264),
+#         Vertex("v8", -0.05637398002140226, -0.9984097226973235),
+#         Vertex("v9", -0.17900977021110775, 0.9838472961638745),
+#         Vertex("v10", 0.38823130650685833, -0.9215619635423208)
+#     ])
