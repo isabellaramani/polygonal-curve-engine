@@ -832,7 +832,7 @@ class Polygon:
                 print("Vertice v2 già in (1,0).")
                 # Ciclo sui vertici da 4 a n
             curr_idx = 4
-            while curr_idx <= len(self.vertices):
+            while self.is_polygon_reduced() is False:
                 # Caso poligonale destrorsa
                 if self.is_right_turn(2):
                     break
@@ -887,6 +887,8 @@ class Polygon:
                                         print("Caso A212")
                                         angle = self.get_v(
                                             curr_idx+1).angle / 2
+                                        if (curr_idx+1) % len(self.vertices) == 2:
+                                            angle = 11 * math.pi /6
                                         self.weak_translation_clockwise(
                                             curr_idx-2, angle)
                                         self.move_to_midpoint(curr_idx-1)
@@ -895,12 +897,14 @@ class Polygon:
                                         continue
 
                                 # Caso A22
+                                
                                 if self.is_clockwise(
                                         [self.get_v(curr_idx),
                                          self.get_v(2),
                                          self.get_v(curr_idx+1),
                                          self.get_v(1)]):
                                     print("Caso A22")
+                                    break
                                     # Primo passaggio
                                     vertices_to_check = [
                                         self.get_v(curr_idx-4),
@@ -1167,17 +1171,64 @@ class Polygon:
                             # Caso C2
                             else:
                                 print("Caso C2")
-                                # Caso limite j-2 = 2 e n sta sotto, la poligonale diventerà destrorsa
-                                if curr_idx - 2 == 2 and self.is_right_turn(1):
-                                    print_vertices(self)
-                                    self.move_to_midpoint(curr_idx-2)
-                                    self.eliminate_vertex(curr_idx-2)
-                                    print_vertices(self)
-                                    break
-                                    self.weak_translation_clockwise(
-                                        2, 0)
-                                    curr_idx -= 1
-                                    continue
+                                # Caso limite j-2 = 2 
+                                if curr_idx - 2 == 2:
+                                    print("C.L.")
+                                
+                                    if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+1),self.get_v(curr_idx-2)]):
+                                                self.move_to_midpoint(curr_idx-1)
+                                                self.eliminate_vertex(curr_idx-1)   
+                                                curr_idx -= 1
+                                                continue 
+                                    # n sta 2 e 3, la poligonale diventerà destrorsa
+                                    if self.is_clockwise([self.get_v(2), self.get_v(curr_idx-4),self.get_v(curr_idx-1)]):
+                    
+                                        self.move_to_midpoint(curr_idx-2)
+                                        self.eliminate_vertex(curr_idx-2)
+                                    
+                                        self.weak_translation_clockwise(
+                                            2, 0)
+                                        curr_idx -= 1
+                                        continue
+                                    
+                                    if self.is_clockwise([self.get_v(4), self.get_v(5),self.get_v(2)]):
+                                        self.move_to_midpoint(3)
+                                        self.eliminate_vertex(3)
+                                        curr_idx -= 1
+                                        continue 
+                                
+                                    if self.is_clockwise([self.get_v(2), self.get_v(5),self.get_v(1)]):
+                                        if len(self.vertices) == 6:
+                                            break
+                                            # non ho considerato se n sta sopra
+                                            angle = ( self.get_v(2).angle + self.get_v(6).angle) / 2    
+                                            self.weak_translation_counterclockwise(5, angle)
+                                            self.move_to_midpoint(3)
+                                            self.eliminate_vertex(3)
+
+                                            self.move_to_midpoint(3)
+                                            self.eliminate_vertex(3)
+
+                                            self.move_to_midpoint(3)
+                                            self.eliminate_vertex(3)
+                                            break
+                                        # Caso vertici>6
+                                        # Risolvo scambiando i ruoli di (1,2) con (2,3)?
+                                        
+                                        
+                                    if self.is_clockwise([self.get_v(1), self.get_v(5),self.get_v(3)]): 
+                                        if len(self.vertices) == 6:
+            
+                                            self.move_to_midpoint(5)
+                                            self.eliminate_vertex(5)
+
+                                            self.move_to_midpoint(4)
+                                            self.eliminate_vertex(4)
+                                            break
+                                        # Caso vertici>6
+                                        # Risolvo scambiando i ruoli di (1,2) con (3,2)
+                                        
+                                    # Verificare se serve continuare o se i casi sono inclusi nei successivi
                                 # Caso C21
                                 if self.is_clockwise([self.get_v(curr_idx), self.get_v(curr_idx+1), self.get_v(1)]):
                                     print("Caso C21")
@@ -1265,14 +1316,13 @@ class Polygon:
                                     # Caso C231
                                     if self.is_clockwise([self.get_v(curr_idx), self.get_v(2), self.get_v(curr_idx+2)]):
                                         print("Caso C231")
-                                        self.get_equispaced_vertices()
-
                                         angle = (self.get_next_clockwise(
                                             # self.get_v(2).angle) / 2
                                             2).angle + 2 * math.pi) / 2
                                         self.weak_translation_clockwise(
                                             curr_idx, angle)
                                         continue
+
 
                                     # Caso C232
                                     else:
@@ -1283,6 +1333,7 @@ class Polygon:
 
                                         # Caso C2321
                                         if self.is_right_turn(curr_idx+2):
+                
                                             print("Caso C2321")
                                             self.move_to_midpoint(curr_idx+1)
                                             self.eliminate_vertex(curr_idx+1)
@@ -1292,11 +1343,12 @@ class Polygon:
 
                                         # Caso C2322
                                         else:
-                                            print("Caso c2322")
+                                            print("Caso C2322")
+
                                             # Risolvo caso limite
                                             if (curr_idx - 2) % len(self.vertices) == 2:
-                                                angle = (self.get_v(
-                                                    curr_idx+3).angle + self.get_v(2).angle) / 2
+                                                curr_idx += 1
+                                                continue
                                             else:
                                                 angle = (self.get_v(
                                                     curr_idx-2).angle + self.get_v(2).angle) / 2
