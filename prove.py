@@ -1,63 +1,31 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from poligoni_stellati import Vertex, Polygon
-
-P = Polygon(
-    [
-        Vertex("v1", 0.3437300059454709, 0.9390685188061234),
-        Vertex("v2", -0.1664430775964021, 0.9860510645601668),
-        Vertex("v3", 0.9364502081098824, 0.3508005241315324),
-        Vertex("v4", 0.40515783346200185, -0.9142467555230245),
-        Vertex("v5", 0.37018462362294713, -0.9289582038138944),
-        Vertex("v6", -0.5671139068187114, -0.8236393729617459),
-        Vertex("v7", 0.2411510433589672, 0.9704875961530274),
-        Vertex("v8", 0.20813455918082324, -0.9781002020624494),
-        Vertex("v9", -0.8931146784951343, 0.44982904647936306),
-        Vertex("v10", -0.04240571295747442, 0.9991004731800343),
-    ]
-)
-P = Polygon(
-    [
-        Vertex("v1", -0.027064249416564268, 0.99963369611249),
-        Vertex("v2", -0.47046008597247124, 0.8824212755293103),
-        Vertex("v3", 0.043156452696938574, -0.999068326287355),
-        Vertex("v4", 0.5789189989831471, 0.8153850578814594),
-        Vertex("v5", -0.6194249797590352, 0.7850558543508346),
-        Vertex("v6", -0.6988412987788333, 0.7152767570116573),
-        Vertex("v7", -0.9469475854993759, -0.3213880369847364),
-        Vertex("v8", 0.8233008094392888, 0.5676053005184253),
-        Vertex("v9", 0.32845338780422884, -0.9445201808537099),
-        Vertex("v10", -0.09221411342817709, -0.9957392014401438),
-    ]
-)
-P = Polygon(
-    [
-        Vertex("v1", 0.9309730039131232, -0.3650880249816144),
-        Vertex("v2", 0.12903512969783848, -0.9916400230445834),
-        Vertex("v3", 0.1778554419797136, -0.9840566252803752),
-        Vertex("v4", -0.3976427746306157, -0.9175403118032828),
-        Vertex("v5", 0.1118661904643743, 0.993723279102884),
-        Vertex("v6", -0.7421716664243356, 0.6702098309909551),
-        Vertex("v7", -0.6174924619511899, 0.7865767981789562),
-        Vertex("v8", 0.1442465829068753, 0.9895417744186902),
-        Vertex("v9", -0.8480422565708308, 0.5299286094090914),
-        Vertex("v10", -0.939596700200938, -0.3422835680711369),
-    ]
+from poligonali_stellate import (
+    is_near,
+    generate_random_polygonal,
 )
 
-P = Polygon(
-    [
-        Vertex("v1", 0.9386937996125804, 0.34475201314698195),
-        Vertex("v2", 0.5577227493581884, -0.8300273097003154),
-        Vertex("v3", 0.8495709053973892, -0.5274744322735088),
-        Vertex("v4", 0.37382803211697113, 0.9274980336386449),
-        Vertex("v5", -0.9282248435043767, 0.3720196767662637),
-        Vertex("v6", 0.11082186843019914, 0.9938402856986829),
-        Vertex("v7", 0.055353192646783844, -0.9984668367371087),
-        Vertex("v8", 0.09183406603173161, 0.9957743239891654),
-        Vertex("v9", -0.05595823175927017, -0.9984331105779575),
-        Vertex("v10", 0.5700494503892732, -0.821610384617239),
-    ]
-)
-num = P.get_winding_number()
-print(f"Il winding number è {num}")
+# CONTROLLO 1000 POLIGONI CASUALI CON I VERTICI NON SOVRAPPOSTI
+for i in range(1, 1000):
+    P = generate_random_polygonal(10)
+    while True:
+        P = generate_random_polygonal(10)
+        # Controlliamo tutte le possibili coppie di vertici
+        for i in range(10):
+            for j in range(i + 1, 10):
+                v1 = P.get_v(i)
+                v2 = P.get_v(j)
+
+                # Se la distanza tra le X è minore della tolleranza
+                # E anche la distanza tra le Y è minore della tolleranza, sono troppo vicini
+                sovrapposition = is_near(v1.x, v2.x) and is_near(v1.y, v2.y)
+                if sovrapposition is True:
+                    break
+            if sovrapposition is True:
+                break
+        if sovrapposition:
+            P = generate_random_polygonal(10)
+            continue
+        else:
+            break
+    P.print_vertices()
+    P.reduce_polygonal()
+    print("Ho ridotto 1000 curve poligonali con successo!")
